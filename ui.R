@@ -17,17 +17,21 @@ shinyUI(tagList(
   navbarPage(
     # theme = "cerulean",  # <--- Uncomment this for using a theme
     "Game-Viz-Group",
-    tabPanel("Graph 1",
-             sidebarPanel(
-               textInput("txt", "Select Game:", "Game1")
-             ),
-             mainPanel(
-               tabsetPanel(
-                 tabPanel("Tab 1"),
-                 tabPanel("Tab 2"),
-                 tabPanel("Tab 3")
-               )
-             )
+    tabPanel(
+      "Graph 1",
+      titlePanel("Genre distribution of video games over the years"),
+      sidebarLayout(
+        sidebarPanel(
+          textInput("txt", "Select Game :", "Game1")
+        ),
+        mainPanel(
+          tabsetPanel(
+            tabPanel("Tab 1"),
+            tabPanel("Tab 2"),
+            tabPanel("Tab 3")
+          )
+        )
+      )
     ),
     tabPanel("Graph 2"),
     tabPanel("Graph 3")
