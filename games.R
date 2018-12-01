@@ -35,6 +35,8 @@ load("data/5000games.Rda")
 library(anytime)
 game_datas_all <- mutate(game_datas_all, first_release_date = anydate(first_release_date / 1000))
 
+save("data/5000games.Rda")
+
 company_url <- paste0("https://api-endpoint.igdb.com",
                       "/companies/?fields=*&limit=50&scroll=1")
 company_res <- GET(company_url, add_headers("user-key" = game_key, "Accept" = "application/json"))
