@@ -12,36 +12,24 @@ library(shiny)
 library(shinythemes)
 library(plotly)
 # Define UI for application that draws a histogram
-shinyUI(navbarPage(
-  title = "IGDB",
-  theme = shinytheme("slate"),
-  tabPanel(
-    "Overview",
-    mainPanel(
-      tags$h1("Overview of the project")
-    )
-  ),
-  tabPanel(
-    "Graph1",
-    mainPanel(
-      tags$h1("Overview of the project")
-    )
-  ),
-  tabPanel(
-    "Graph2",
-    mainPanel(
-      tags$h1("Overview of the project")
-    )
-  ),
-  tabPanel(
-    "Graph3",
-    mainPanel(
-      tags$h1("Overview of the project")
-    )
-  ),
-  tabPanel(
-    "Insight",
-    mainPanel(
-    )
+shinyUI(tagList(
+  shinythemes::themeSelector(),
+  navbarPage(
+    # theme = "cerulean",  # <--- Uncomment this for using a theme
+    "Game-Viz-Group",
+    tabPanel("Graph 1",
+             sidebarPanel(
+               textInput("txt", "Select Game:", "Game1")
+             ),
+             mainPanel(
+               tabsetPanel(
+                 tabPanel("Tab 1"),
+                 tabPanel("Tab 2"),
+                 tabPanel("Tab 3")
+               )
+             )
+    ),
+    tabPanel("Graph 2"),
+    tabPanel("Graph 3")
   )
 ))
