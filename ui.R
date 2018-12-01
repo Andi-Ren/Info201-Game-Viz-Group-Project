@@ -3,31 +3,45 @@
 # run the application by clicking 'Run App' above.
 #
 # Find out more about building applications with Shiny here:
-# 
+#
 #    http://shiny.rstudio.com/
 #
-
+# install.packages("shinythemes")
+# install.packages("plotly")
 library(shiny)
-
+library(shinythemes)
+library(plotly)
 # Define UI for application that draws a histogram
-shinyUI(fluidPage(
-  
-  # Application title
-  titlePanel("Old Faithful Geyser Data"),
-  
-  # Sidebar with a slider input for number of bins 
-  sidebarLayout(
-    sidebarPanel(
-       sliderInput("bins",
-                   "Number of bins:",
-                   min = 1,
-                   max = 50,
-                   value = 30)
-    ),
-    
-    # Show a plot of the generated distribution
+shinyUI(navbarPage(
+  title = "IGDB",
+  theme = shinytheme("slate"),
+  tabPanel(
+    "Overview",
     mainPanel(
-       plotOutput("distPlot")
+      tags$h1("Overview of the project")
+    )
+  ),
+  tabPanel(
+    "Graph1",
+    mainPanel(
+      tags$h1("Overview of the project")
+    )
+  ),
+  tabPanel(
+    "Graph2",
+    mainPanel(
+      tags$h1("Overview of the project")
+    )
+  ),
+  tabPanel(
+    "Graph3",
+    mainPanel(
+      tags$h1("Overview of the project")
+    )
+  ),
+  tabPanel(
+    "Insight",
+    mainPanel(
     )
   )
 ))

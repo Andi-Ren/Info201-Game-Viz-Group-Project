@@ -2,8 +2,7 @@ library(httr)
 library(jsonlite)
 library(dplyr)
 
-source("keys.R")
-
+source("~/Documents/info201_R/igdb_sample/igdb_key.R")
 # order by total ratings count in descending order
 game_url <- paste0("https://api-endpoint.igdb.com",
                           "/games/?order=total_rating_count:desc&fields=*&limit=50&scroll=1")
