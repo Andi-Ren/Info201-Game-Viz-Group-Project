@@ -29,3 +29,6 @@ game_datas_all <- bind_rows(game_datas_all, game_nextpage)
 # But ideally we should call query less, since I think that there is a monthly limit of 3000 queries.
 
 # To do: make shinyapp server.R and ui.R
+
+load("1000games.Rda")
+load("5000games.Rda")
