@@ -2,7 +2,12 @@ library(httr)
 library(jsonlite)
 library(dplyr)
 
-source("~/Documents/info201_R/igdb_sample/igdb_key.R")
+if (Sys.info()["user"] == "Denouement") {
+  source("~/Documents/info201_R/igdb_sample/igdb_key.R")
+} else {
+  source("keys.R")
+}
+
 # order by total ratings count in descending order
 game_url <- paste0("https://api-endpoint.igdb.com",
                           "/games/?order=total_rating_count:desc&fields=*&limit=50&scroll=1")
@@ -26,36 +31,40 @@ for(i in 1:99) {
 # game_res_all[["headers"]][["x-count"]] gives you total number of games that imdb has, so we can call a for loop depends on it
 # But ideally we should call query less, since I think that there is a monthly limit of 3000 queries.
 
-# To do: make shinyapp server.R and ui.R
-
 load("data/1000games.Rda")
 load("data/5000games.Rda")
 
-# Covert the first
+# This step converts the first release date of games from UNIX epoch to human readable form
 library(anytime)
-game_datas_all <- mutate(game_datas_all, first_release_date = anydate(first_release_date / 1000))
+# Note: I should rewrite this as a function
 
-save("data/5000games.Rda")
+# game_datas_all <- mutate(game_datas_all, first_release_date = anydate(first_release_date / 1000))
+# save(game_datas_all, file = "data/5000games.Rda")
 
+# This code chunk tests the endpoint of game companies
 company_url <- paste0("https://api-endpoint.igdb.com",
                       "/companies/?fields=*&limit=50&scroll=1")
 company_res <- GET(company_url, add_headers("user-key" = game_key, "Accept" = "application/json"))
 company_datas <- flatten(fromJSON(rawToChar(content(company_res, "raw"))))
 
+# This code chunk tests the endpoint of game genres
 genre_url <- paste0("https://api-endpoint.igdb.com",
                       "/genres/?fields=*&limit=50&scroll=1")
 genre_res <- GET(genre_url, add_headers("user-key" = game_key, "Accept" = "application/json"))
 genre_datas <- flatten(fromJSON(rawToChar(content(genre_res, "raw"))))
 
+# This code chunk tests the endpoint of game franchises
 franchises_url <- paste0("https://api-endpoint.igdb.com",
                     "/franchises/?fields=*&limit=50&scroll=1")
 franchises_res <- GET(franchises_url, add_headers("user-key" = game_key, "Accept" = "application/json"))
 franchises_datas <- flatten(fromJSON(rawToChar(content(franchises_res, "raw"))))
 
+# This code chunk extracts all developers from the list of 5000 games
 unique_dev <- unique(game_datas_all$developers)
 unique_dev <- unlist(unique_dev)
 unique_dev <- unique(unique_dev)
 
+# This code chunk utilizes the list of developers and extract all their information from the api
 unique_dev_string <- paste0(as.character(unique_dev[1:50]), collapse=",")
 unique_dev <- unique_dev[-(1:50)]
 
@@ -65,8 +74,8 @@ company_url <- paste0("https://api-endpoint.igdb.com",
 company_res <- GET(company_url, add_headers("user-key" = game_key, "Accept" = "application/json"))
 company_datas <- flatten(fromJSON(rawToChar(content(company_res, "raw"))))
 
-unique_dev_string <- paste0(as.character(unique_dev[1:1628]), collapse=",")
-unique_dev <- unique_dev[-(1:200)]
+unique_dev_string <- paste0(as.character(unique_dev[1:1978]), collapse=",")
+# unique_dev <- unique_dev[-(1:200)]
 
 company_url <- paste0("https://api-endpoint.igdb.com",
                       "/companies/", unique_dev_string,
@@ -75,6 +84,7 @@ company_res <- GET(company_url, add_headers("user-key" = game_key, "Accept" = "a
 company_datas2 <- flatten(fromJSON(rawToChar(content(company_res, "raw"))))
 company_datas <- bind_rows(company_datas, company_datas2)
 
+# Change the companies' founded date to human readable form
 company_datas <- mutate(company_datas, start_date = anydate(start_date / 1000))
 
 save(company_datas, file = "data/companylist.Rdat")
@@ -83,3 +93,15 @@ save(genre_datas, file = "data/genrelist.Rdat")
 load("data/companylist.Rdat")
 load("data/genrelist.Rdat")
 
+# This code chunk starts to extract information of franchises from the list of 5000 games.
+unique_fran <- unique(game_datas_all$franchise)
+unique_fran <- na.omit(unique_fran)
+unique_fran_string <- paste0(as.character(unique_fran[1:333]), collapse=",")
+
+franchises_url <- paste0("https://api-endpoint.igdb.com",
+                         "/franchises/", unique_fran_string,
+                         "?fields=*&limit=50&scroll=1")
+franchises_res <- GET(franchises_url, add_headers("user-key" = game_key, "Accept" = "application/json"))
+franchises_datas <- flatten(fromJSON(rawToChar(content(franchises_res, "raw"))))
+
+save(franchises_datas, file = "data/franchisedata.Rdat")
