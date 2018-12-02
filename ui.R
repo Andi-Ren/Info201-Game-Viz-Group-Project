@@ -30,12 +30,12 @@ shinyUI(tagList(
              )
     ),
     tabPanel("Graph 2",
-             sidebarPanel(
-               uiOutput("selectfran")
-             ),
-             mainPanel(
-               plotOutput("lineplot")
-             )),
+              sidebarPanel(
+                uiOutput("selectfran")
+              ),
+              mainPanel(
+                plotlyOutput("lineplot")
+              )),
     tabPanel("Graph 3")
   )
 ))
