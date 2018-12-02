@@ -29,7 +29,13 @@ shinyUI(tagList(
                )
              )
     ),
-    tabPanel("Graph 2"),
+    tabPanel("Graph 2",
+             sidebarPanel(
+               uiOutput("selectfran")
+             ),
+             mainPanel(
+               plotOutput("lineplot")
+             )),
     tabPanel("Graph 3")
   )
 ))
