@@ -106,3 +106,35 @@ franchises_datas <- flatten(fromJSON(rawToChar(content(franchises_res, "raw"))))
 
 save(franchises_datas, file = "data/franchisedata.Rdat")
 load("data/franchisedata.Rdat")
+
+# This code chunk experiments with collection field
+unique_col <- unique(game_datas_all$collection)
+unique_col <- na.omit(unique_col)
+
+col_url <- paste0("https://api-endpoint.igdb.com",
+                  "/collections/", unique_col[1],
+                  "?fields=*")
+col_res <- GET(col_url, add_headers("user-key" = game_key, "Accept" = "application/json"))
+collection_datas <- flatten(fromJSON(rawToChar(content(col_res, "raw"))))
+
+for (i in 2:300) {
+  col_url <- paste0("https://api-endpoint.igdb.com",
+                    "/collections/", unique_col[i],
+                    "?fields=*")
+  col_res <- GET(col_url, add_headers("user-key" = game_key, "Accept" = "application/json"))
+  collection_datas <- bind_rows(collection_datas, flatten(fromJSON(rawToChar(content(col_res, "raw")))))
+}
+
+save(collection_datas, file = "data/collectiondata.Rdat")
+
+# This code chunk extracts theme data from IGDB
+unique_theme <- unlist(game_datas_all$themes)
+unique_theme <- unique(unique_theme)
+unique_theme_string <- paste0(as.character(unique_theme[1:21]), collapse=",")
+theme_url <- paste0("https://api-endpoint.igdb.com",
+                  "/themes/", unique_theme_string,
+                  "?fields=*")
+theme_res <- GET(theme_url, add_headers("user-key" = game_key, "Accept" = "application/json"))
+theme_datas <- flatten(fromJSON(rawToChar(content(theme_res, "raw"))))
+
+save(theme_datas, file = "data/themedata.Rdat")

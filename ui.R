@@ -34,7 +34,14 @@ shinyUI(tagList(
         )
       )
     ),
-    tabPanel("Graph 2"),
+    tabPanel("Graph 2",
+              sidebarPanel(
+                uiOutput("selectgenre"),
+                uiOutput("selectyear")
+              ),
+              mainPanel(
+                plotlyOutput("lineplot")
+              )),
     tabPanel("Graph 3")
   )
 ))
