@@ -105,6 +105,7 @@ franchises_res <- GET(franchises_url, add_headers("user-key" = game_key, "Accept
 franchises_datas <- flatten(fromJSON(rawToChar(content(franchises_res, "raw"))))
 
 save(franchises_datas, file = "data/franchisedata.Rdat")
+load("data/franchisedata.Rdat")
 
 # This code chunk experiments with collection field
 unique_col <- unique(game_datas_all$collection)
