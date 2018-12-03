@@ -20,15 +20,26 @@ game_datas_all <- game_datas_all %>%
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
-  output$selectfran <- renderUI({
+  output$selectgenre <- renderUI({
     selectInput("genre",
                 label = "Genre",
                 choices = genre_datas$name)
   })
+  output$selectyear <- renderUI({
+  sliderInput("year",
+              label = "Year",
+              min = 1971,
+              max = 2018,
+              value = c(1971, 2018))
+  })
   output$lineplot <- renderPlotly({
     selected_genre <- genre_datas %>% filter(name == input$genre[1])
     gamelist <- unlist(selected_genre$games, use.names = FALSE)
-    game_data <- game_datas_all %>% filter(id %in% gamelist) %>%
+    start_year <- as.Date(paste0(input$year[1], "-01-01"))
+    end_year <- as.Date(paste0(input$year[2], "-12-31"))
+    game_data <- game_datas_all %>%
+      filter(start_year <= first_release_date & end_year >= first_release_date) %>%
+      filter(id %in% gamelist) %>%
       select(name, first_release_date, total_rating) %>% arrange(first_release_date)
     plot <- plot_ly(game_data, x = ~first_release_date, y = ~total_rating,
                    type = 'scatter', mode = 'lines+markers', text = ~name)

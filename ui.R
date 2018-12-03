@@ -31,7 +31,8 @@ shinyUI(tagList(
     ),
     tabPanel("Graph 2",
               sidebarPanel(
-                uiOutput("selectfran")
+                uiOutput("selectgenre"),
+                uiOutput("selectyear")
               ),
               mainPanel(
                 plotlyOutput("lineplot")
