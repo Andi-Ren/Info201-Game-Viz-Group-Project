@@ -37,8 +37,11 @@ shinyUI(tagList(
     ),
     tabPanel("Graph 2",
               sidebarPanel(
-                uiOutput("selectgenre"),
-                uiOutput("selectyear")
+                uiOutput("select_genre"),
+                uiOutput("select_theme"),
+                uiOutput("select_franchise"),
+                uiOutput("select_year_wayne"),
+                uiOutput("base_game")
               ),
               mainPanel(
                 plotlyOutput("lineplot")
