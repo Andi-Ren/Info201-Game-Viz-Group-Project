@@ -17,13 +17,24 @@ generate_unique_release_year <- function() {
   unique_year <- unique_year[!is.na(unique_year)]
 }
 
-generate_genre_occurrence <- function() {
-  length(which(grepel(12, game_datas_all$genres)))
+generate_genre_occurrence <- function(genre_id) {
+  length(which(grepl(genre_id, game_datas_all$genres)))
 }
 
-#generate_pie_chart <- function(genre_data, title) {
-#  
-#}
+generate_pie_chart <- function(genre_name, genre_id, year) {
+    result <- plot_ly(labels = genre_name, values = genre_id, 
+                      textposition = 'inside',
+                      textinfo = 'percent'
+                    ) %>%
+    add_pie(hole = 0.6) %>%
+    layout(title = paste("Genre distribution of video games in the year of", year),  
+           font = list(
+             color = '#fff'),
+           showlegend = F,
+           paper_bgcolor='transparent',
+           xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+           yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+}
 
 #generate_filtered_genre <- function() {
 #  result <- game_datas_all %>% select(id, name, first_release_date, genres) %>% 
@@ -79,21 +90,14 @@ shinyServer(function(input, output) {
     return(checkboxGroupInput("genre_types", "Game Type(s)", choices=joined_dataframe$name, selected=joined_dataframe$name))
   })
   
-output$genre_pie_chart <- renderText({
+output$genre_pie_chart <- renderPlotly({
     year_data <- game_datas_all %>% select(id, name, first_release_date, genres) %>% 
       filter(substr(first_release_date, 1, 4) == input$year_selection)
     genres_vector <- unlist(year_data$genres)
     filtered_genres <- genre_datas %>% filter(name %in% input$genre_types) #might show problem
     genre_vector <- filtered_genres$id
-   # genres_occurrence <- length(which(grepel(12, game_datas_all$genres)))
-    filtered_genres <- input$genre_types
-    selected_genres_id <- c()
-    for (i in 1:length(filtered_genres)) {
-      genre_id <- genre_datas %>% filter(name == filtered_genres[i])
-      genre_id <- genre_id$id
-      append(selected_genres_id, genre_id)
-    }
-    selected_genres_id
+    #need to add count vector of genres and pass it to pie chart
+    genre_occurrences <- sapply(genre_vector, generate_genre_occurrence)
+    generate_pie_chart(input$genre_types, genre_occurrences, input$year_selection)
   })
-  
 })

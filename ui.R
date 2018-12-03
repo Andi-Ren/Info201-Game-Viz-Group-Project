@@ -13,9 +13,10 @@ library(shinythemes)
 library(plotly)
 # Define UI for application that draws a histogram
 shinyUI(tagList(
-  shinythemes::themeSelector(),
+  #shinythemes::themeSelector(),
   navbarPage(
-    # theme = "cerulean",  # <--- Uncomment this for using a theme
+    #"superhero",
+    theme = shinytheme("superhero"),  # <--- Uncomment this for using a theme
     "Game-Viz-Group",
     tabPanel(
       "Graph 1",
