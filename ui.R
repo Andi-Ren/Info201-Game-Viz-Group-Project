@@ -34,7 +34,8 @@ shinyUI(tagList(
         )
       )
     ),
-    tabPanel("Graph 2",
+    tabPanel("Rating Trend",
+             titlePanel("Ratings Trend Across Time, Genre, Theme, and Franchise"),
               sidebarPanel(
                 uiOutput("select_genre"),
                 uiOutput("select_theme"),

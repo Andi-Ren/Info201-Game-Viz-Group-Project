@@ -41,22 +41,61 @@ collection_datas <- collection_datas %>% arrange(name)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
+  reactive_data <- reactive({
+    game_data <- game_datas_all
+    if (!is.null(input$franchise) & !is.null(input$genre) & !is.null(input$theme)) {
+      if (input$theme[1] != "All") {
+        selected_theme <- theme_datas %>% filter(name == input$theme[1])
+        gamelist_theme <- unlist(selected_theme$games, use.names = FALSE)
+        game_data <- game_data %>% filter(id %in% gamelist_theme)
+      }
+      if (input$franchise[1] != "All") {
+        selected_franchise <- collection_datas %>% filter(name == input$franchise[1])
+        gamelist_franchise <- unlist(selected_franchise$games, use.names = FALSE)
+        game_data <- game_data %>% filter(id %in% gamelist_franchise)
+      }
+      if (input$genre[1] != "All") {
+        selected_genre <- genre_datas %>% filter(name == input$genre[1])
+        gamelist_genre <- unlist(selected_genre$games, use.names = FALSE)
+        game_data <- game_data %>% filter(id %in% gamelist_genre)
+      }
+    }
+    game_data
+  })
   output$select_genre <- renderUI({
+    #game_data <- reactive_data()
+    #genre_list <- unlist(game_data$genre)
+    #genre_list <- unique(genre_list)
+    #genre_data <- genre_datas %>% filter(id %in% genre_list)
     selectInput("genre",
                 label = "Genre",
-                choices = c("All", genre_datas$name))
+                choices = c("Select all" = "All", genre_datas$name),
+                selected = "All"
+                )
   })
   output$select_theme <- renderUI({
+    #game_data <- reactive_data()
+    #theme_list <- unlist(game_data$theme)
+    #theme_list <- unique(theme_list)
+    #theme_data <- theme_datas %>% filter(id %in% theme_list)
     selectInput("theme",
                 label = "Theme",
-                choices = c("All", theme_datas$name))
+                choices = c("Select all" = "All", theme_datas$name),
+                selected = "All"
+                )
   })
   output$select_franchise <- renderUI({
+    #game_data <- reactive_data()
+    #franchise_list <- unlist(game_data$franchise)
+    #franchise_list <- unique(franchise_list)
+    #collection_data <- collection_datas %>% filter(id %in% franchise_list)
     selectInput("franchise",
                 label = "Franchise",
-                choices = c("All", collection_datas$name),
+                choices = c("Select all" = "All", collection_datas$name),
                 selectize = FALSE,
-                size = 20)
+                size = 20,
+                selected = "All"
+                )
   })
   output$select_year_wayne <- renderUI({
     sliderInput("year",
@@ -69,22 +108,7 @@ shinyServer(function(input, output) {
     checkboxInput("base", label = "Base games only", value = FALSE)
   })
   output$lineplot <- renderPlotly({
-    game_data <- game_datas_all
-    if (input$genre[1] != "All") {
-      selected_genre <- genre_datas %>% filter(name == input$genre[1])
-      gamelist <- unlist(selected_genre$games, use.names = FALSE)
-      game_data <- game_data %>% filter(id %in% gamelist)
-    }
-    if (input$theme[1] != "All") {
-      selected_theme <- theme_datas %>% filter(name == input$theme[1])
-      gamelist <- unlist(selected_theme$games, use.names = FALSE)
-      game_data <- game_data %>% filter(id %in% gamelist)
-    }
-    if (input$franchise[1] != "All") {
-      selected_franchise <- collection_datas %>% filter(name == input$franchise[1])
-      gamelist <- unlist(selected_franchise$games, use.names = FALSE)
-      game_data <- game_data %>% filter(id %in% gamelist)
-    }
+    game_data <- reactive_data()
     start_year <- as.Date(paste0(input$year[1], "-01-01"))
     end_year <- as.Date(paste0(input$year[2], "-12-31"))
     game_data <- game_data %>%
@@ -95,8 +119,11 @@ shinyServer(function(input, output) {
     game_data <- game_data %>% select(name, first_release_date, total_rating) %>%
       arrange(first_release_date)
     if (nrow(game_data) >= 0) {
+      x_style <- list(title = "Launch Date")
+      y_style <- list(title = "Rating", range = c(10, 100))
       plot <- plot_ly(game_data, x = ~first_release_date, y = ~total_rating,
-                      type = 'scatter', mode = 'lines+markers', text = ~name)
+                      type = 'scatter', mode = 'lines+markers', text = ~name) %>%
+              layout(xaxis = x_style, yaxis = y_style)
     }
   })
   output$select_year <- renderUI({
