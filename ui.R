@@ -18,6 +18,15 @@ shinyUI(tagList(
     # theme = "cerulean",  # <--- Uncomment this for using a theme
     "Game-Viz-Group",
     tabPanel(
+      "About",
+      titlePanel("What is this app and what is it for."),
+      "This Shiny web app is for visualizing information about video games
+        for video game players who likes to analyze and critique.
+        we work with data retrived from Internet Games Database(IGDB), 
+        a community-driven site that gathers and shares game-related information. The data is collected by IGDB.com, 
+        and we gain access through its API."
+    ),
+    tabPanel(
       "Graph 1",
       titlePanel("Genre distribution of video games over the years"),
       sidebarLayout(
@@ -36,8 +45,11 @@ shinyUI(tagList(
     ),
     tabPanel("Graph 2",
               sidebarPanel(
-                uiOutput("selectgenre"),
-                uiOutput("selectyear")
+                uiOutput("select_genre"),
+                uiOutput("select_theme"),
+                uiOutput("select_franchise"),
+                uiOutput("select_year_wayne"),
+                uiOutput("base_game")
               ),
               mainPanel(
                 plotlyOutput("lineplot")
