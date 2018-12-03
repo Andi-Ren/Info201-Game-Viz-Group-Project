@@ -30,12 +30,19 @@ shinyUI(tagList(
              )
     ),
     tabPanel("Graph 2",
-              sidebarPanel(
-                uiOutput("selectfran")
-              ),
+
               mainPanel(
                 plotlyOutput("lineplot")
               )),
-    tabPanel("Graph 3")
+    tabPanel("Game Hotness Gauge",
+              fluidPage(
+                sidebarPanel(
+                  uiOutput("select_game")
+                ),
+              ),
+              mainPanel(
+                plotlyOutput("gauge_plot")
+              )
+            )
   )
 ))
