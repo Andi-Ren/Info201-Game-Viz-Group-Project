@@ -18,13 +18,24 @@ generate_unique_release_year <- function() {
   unique_year <- unique_year[!is.na(unique_year)]
 }
 
-generate_genre_occurrence <- function() {
-  length(which(grepel(12, game_datas_all$genres)))
+generate_genre_occurrence <- function(genre_id) {
+  length(which(grepl(genre_id, game_datas_all$genres)))
 }
 
-#generate_pie_chart <- function(genre_data, title) {
-#  
-#}
+generate_pie_chart <- function(genre_name, genre_id, year) {
+    result <- plot_ly(labels = genre_name, values = genre_id, 
+                      textposition = 'inside',
+                      textinfo = 'percent'
+                    ) %>%
+    add_pie(hole = 0.6) %>%
+    layout(title = paste("Genre distribution of video games in the year of", year),  
+           font = list(
+             color = '#fff'),
+           showlegend = F,
+           paper_bgcolor='transparent',
+           xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+           yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+}
 
 #generate_filtered_genre <- function() {
 #  result <- game_datas_all %>% select(id, name, first_release_date, genres) %>% 
@@ -42,22 +53,61 @@ collection_datas <- collection_datas %>% arrange(name)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
+  reactive_data <- reactive({
+    game_data <- game_datas_all
+    if (!is.null(input$franchise) & !is.null(input$genre) & !is.null(input$theme)) {
+      if (input$theme[1] != "All") {
+        selected_theme <- theme_datas %>% filter(name == input$theme[1])
+        gamelist_theme <- unlist(selected_theme$games, use.names = FALSE)
+        game_data <- game_data %>% filter(id %in% gamelist_theme)
+      }
+      if (input$franchise[1] != "All") {
+        selected_franchise <- collection_datas %>% filter(name == input$franchise[1])
+        gamelist_franchise <- unlist(selected_franchise$games, use.names = FALSE)
+        game_data <- game_data %>% filter(id %in% gamelist_franchise)
+      }
+      if (input$genre[1] != "All") {
+        selected_genre <- genre_datas %>% filter(name == input$genre[1])
+        gamelist_genre <- unlist(selected_genre$games, use.names = FALSE)
+        game_data <- game_data %>% filter(id %in% gamelist_genre)
+      }
+    }
+    game_data
+  })
   output$select_genre <- renderUI({
+    #game_data <- reactive_data()
+    #genre_list <- unlist(game_data$genre)
+    #genre_list <- unique(genre_list)
+    #genre_data <- genre_datas %>% filter(id %in% genre_list)
     selectInput("genre",
                 label = "Genre",
-                choices = c("All", genre_datas$name))
+                choices = c("Select all" = "All", genre_datas$name),
+                selected = "All"
+                )
   })
   output$select_theme <- renderUI({
+    #game_data <- reactive_data()
+    #theme_list <- unlist(game_data$theme)
+    #theme_list <- unique(theme_list)
+    #theme_data <- theme_datas %>% filter(id %in% theme_list)
     selectInput("theme",
                 label = "Theme",
-                choices = c("All", theme_datas$name))
+                choices = c("Select all" = "All", theme_datas$name),
+                selected = "All"
+                )
   })
   output$select_franchise <- renderUI({
+    #game_data <- reactive_data()
+    #franchise_list <- unlist(game_data$franchise)
+    #franchise_list <- unique(franchise_list)
+    #collection_data <- collection_datas %>% filter(id %in% franchise_list)
     selectInput("franchise",
                 label = "Franchise",
-                choices = c("All", collection_datas$name),
+                choices = c("Select all" = "All", collection_datas$name),
                 selectize = FALSE,
-                size = 20)
+                size = 20,
+                selected = "All"
+                )
   })
   output$select_year_wayne <- renderUI({
     sliderInput("year",
@@ -70,22 +120,7 @@ shinyServer(function(input, output) {
     checkboxInput("base", label = "Base games only", value = FALSE)
   })
   output$lineplot <- renderPlotly({
-    game_data <- game_datas_all
-    if (input$genre[1] != "All") {
-      selected_genre <- genre_datas %>% filter(name == input$genre[1])
-      gamelist <- unlist(selected_genre$games, use.names = FALSE)
-      game_data <- game_data %>% filter(id %in% gamelist)
-    }
-    if (input$theme[1] != "All") {
-      selected_theme <- theme_datas %>% filter(name == input$theme[1])
-      gamelist <- unlist(selected_theme$games, use.names = FALSE)
-      game_data <- game_data %>% filter(id %in% gamelist)
-    }
-    if (input$franchise[1] != "All") {
-      selected_franchise <- collection_datas %>% filter(name == input$franchise[1])
-      gamelist <- unlist(selected_franchise$games, use.names = FALSE)
-      game_data <- game_data %>% filter(id %in% gamelist)
-    }
+    game_data <- reactive_data()
     start_year <- as.Date(paste0(input$year[1], "-01-01"))
     end_year <- as.Date(paste0(input$year[2], "-12-31"))
     game_data <- game_data %>%
@@ -96,8 +131,11 @@ shinyServer(function(input, output) {
     game_data <- game_data %>% select(name, first_release_date, total_rating) %>%
       arrange(first_release_date)
     if (nrow(game_data) >= 0) {
+      x_style <- list(title = "Launch Date")
+      y_style <- list(title = "Rating", range = c(10, 100))
       plot <- plot_ly(game_data, x = ~first_release_date, y = ~total_rating,
-                      type = 'scatter', mode = 'lines+markers', text = ~name)
+                      type = 'scatter', mode = 'lines+markers', text = ~name) %>%
+              layout(xaxis = x_style, yaxis = y_style)
     }
   })
   
@@ -205,22 +243,13 @@ shinyServer(function(input, output) {
     return(checkboxGroupInput("genre_types", "Game Type(s)", choices=joined_dataframe$name, selected=joined_dataframe$name))
   })
   
-  output$genre_pie_chart <- renderText({
+output$genre_pie_chart <- renderPlotly({
     year_data <- game_datas_all %>% select(id, name, first_release_date, genres) %>% 
       filter(substr(first_release_date, 1, 4) == input$year_selection)
     genres_vector <- unlist(year_data$genres)
     filtered_genres <- genre_datas %>% filter(name %in% input$genre_types) #might show problem
     genre_vector <- filtered_genres$id
-    genre_vector
+    genre_occurrences <- sapply(genre_vector, generate_genre_occurrence)
+    generate_pie_chart(input$genre_types, genre_occurrences, input$year_selection)
   })
-  
-  output$gauge = renderGauge({
-    gauge(input$value, 
-          min = 0, 
-          max = 1, 
-          sectors = gaugeSectors(success = c(0.5, 1), 
-                                 warning = c(0.3, 0.5),
-                                 danger = c(0, 0.3)))
-  })
-  
 })

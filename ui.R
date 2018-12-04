@@ -14,9 +14,10 @@ library(plotly)
 library(flexdashboard)
 # Define UI for application that draws a histogram
 shinyUI(tagList(
-  shinythemes::themeSelector(),
+  #shinythemes::themeSelector(),
   navbarPage(
-    # theme = "cerulean",  # <--- Uncomment this for using a theme
+    #"superhero",
+    theme = shinytheme("superhero"),  # <--- Uncomment this for using a theme
     "Game-Viz-Group",
     tabPanel(
       "About",
@@ -48,7 +49,8 @@ shinyUI(tagList(
         )
       )
     ),
-    tabPanel("Graph 2",
+    tabPanel("Rating Trend",
+             titlePanel("Ratings Trend Across Time, Genre, Theme, and Franchise"),
               sidebarPanel(
                 uiOutput("select_genre"),
                 uiOutput("select_theme"),
