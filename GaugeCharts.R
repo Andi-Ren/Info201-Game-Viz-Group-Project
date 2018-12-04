@@ -17,8 +17,10 @@ draw_gauge <- function(pop, max) {
     hoverinfo = "none",
     domain = list(x = c(0, 1), y = c(0, 1)),
     marker = list(colors = c('rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)','rgb(255, 255, 255)')),
-    showlegend = FALSE
-  )
+    showlegend = FALSE, 
+    width = 600, 
+    height = 600
+  ) 
   
   base_plot <- add_trace(
     base_plot,
@@ -55,16 +57,16 @@ draw_gauge <- function(pop, max) {
     shapes = list(
       list(
         type = 'path',
-        path = paste('M 0.5 0.5 L', as.character(0.3 * cos(rad) + 0.5), as.character(0.3 * sin(rad) + 0.5), 'L 0.5 0.5 Z'),
-        xref = 'paper',
-        yref = 'paper',
+        path = paste('M', as.character(0.3 * cos(rad) + 0.5), as.character(0.3 * sin(rad) + 0.5), 'L 0.5 0.5 Z'),
+        xref = '0.5 0.5',
+        yref = '0.5 0.5',
         fillcolor = 'rgba(44, 160, 101, 0.5)'
       )
     ),
     xaxis = a,
     yaxis = a,
     annotations = b
-  )
+  ) 
   print(base_chart)
 }
 

@@ -10,6 +10,7 @@
 library(shiny)
 library(dplyr)
 library(plotly)
+library(flexdashboard)
 generate_unique_release_year <- function() {
   filtered_data <- game_datas_all %>% select(id, name, first_release_date, genres) 
   unique_year <- substr(filtered_data$first_release_date, 1, 4)
@@ -101,17 +102,29 @@ shinyServer(function(input, output) {
   })
   
   output$select_game <- renderUI({
-    selectInput("genre",
-                label = "Genre",
-                choices = genre_datas$name)
+    game <- game_datas_all
+    game <- arrange(game, -popularity)
+    selectInput("Games",
+                label = "Games",
+                selectize = FALSE,
+                size = 20,
+                choices = game$name)
   })
   
   output$gauge_plot <- renderPlotly({ 
     max <- max(game_datas_all$popularity)
-    game <- filter(game_datas_all, name == input$value)
+    game <- filter(game_datas_all, name == input$Games[1])
     pop <- game$popularity
     section <- max / 5
     rad <- (1 - (pop / max)) * pi
+    
+    m <- list(
+      l = 50,
+      r = 50,
+      b = 100,
+      t = 100,
+      pad = 4
+    )
     
     base_plot <- plot_ly(
       type = "pie",
@@ -125,7 +138,9 @@ shinyServer(function(input, output) {
       hoverinfo = "none",
       domain = list(x = c(0, 1), y = c(0, 1)),
       marker = list(colors = c('rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)','rgb(255, 255, 255)')),
-      showlegend = FALSE
+      showlegend = FALSE,
+      width = 1000, 
+      height = 500
     )
     
     base_plot <- add_trace(
@@ -138,7 +153,7 @@ shinyServer(function(input, output) {
       hole = 0.5,
       textinfo = "label",
       textposition = "inside",
-      hoverinfo = "game name",
+      hoverinfo = "name",
       domain = list(x = c(0, 1), y = c(0, 1)),
       marker = list(colors = c('rgb(255, 255, 255)', 'rgb(232,226,202)', 'rgb(244,220,66)', 'rgb(244,166,66)', 'rgb(244,100,66)', 'rgb(244,66,66)')),
       showlegend= FALSE
@@ -163,7 +178,7 @@ shinyServer(function(input, output) {
       shapes = list(
         list(
           type = 'path',
-          path = paste('M 0.5 0.5 L', as.character(0.3 * cos(rad) + 0.5), as.character(0.3 * sin(rad) + 0.5), 'L 0.5 0.5 Z'),
+          path = paste('M 0.5 0.5 L', as.character(0.15 * cos(rad) + 0.5), as.character(0.3 * sin(rad) + 0.5), 'L 0.5 0.5 Z'),
           xref = 'paper',
           yref = 'paper',
           fillcolor = 'rgba(44, 160, 101, 0.5)'
@@ -172,12 +187,13 @@ shinyServer(function(input, output) {
       xaxis = a,
       yaxis = a,
       annotations = b
-    )
+    ) 
   })
 
   output$select_year <- renderUI({
     return(selectInput("year_selection", "Select Release Year", choices=generate_unique_release_year()))
   })
+  
   output$filter_genre <- renderUI({
     selected_year_data <- game_datas_all %>% select(id, name, first_release_date, genres) %>% 
           filter(substr(first_release_date, 1, 4) == input$year_selection)
@@ -196,6 +212,15 @@ shinyServer(function(input, output) {
     filtered_genres <- genre_datas %>% filter(name %in% input$genre_types) #might show problem
     genre_vector <- filtered_genres$id
     genre_vector
+  })
+  
+  output$gauge = renderGauge({
+    gauge(input$value, 
+          min = 0, 
+          max = 1, 
+          sectors = gaugeSectors(success = c(0.5, 1), 
+                                 warning = c(0.3, 0.5),
+                                 danger = c(0, 0.3)))
   })
   
 })
