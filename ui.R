@@ -11,7 +11,6 @@
 library(shiny)
 library(shinythemes)
 library(plotly)
-library(flexdashboard)
 # Define UI for application that draws a histogram
 shinyUI(tagList(
   #shinythemes::themeSelector(),
@@ -26,11 +25,7 @@ shinyUI(tagList(
         for video game players who likes to analyze and critique.
         we work with data retrived from Internet Games Database(IGDB), 
         a community-driven site that gathers and shares game-related information. The data is collected by IGDB.com, 
-        and we gain access through its API.",
-      sidebarLayout(
-        numericInput("value", label = "Select value", min = 0, max = 1, value = 0.5, step = 0.1),
-        gaugeOutput("gauge")
-      )
+        and we gain access through its API."
     ),
     tabPanel(
       "Graph 1",

@@ -10,7 +10,6 @@
 library(shiny)
 library(dplyr)
 library(plotly)
-library(flexdashboard)
 generate_unique_release_year <- function() {
   filtered_data <- game_datas_all %>% select(id, name, first_release_date, genres) 
   unique_year <- substr(filtered_data$first_release_date, 1, 4)
