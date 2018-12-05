@@ -247,9 +247,9 @@ shinyServer(function(input, output, session) {
   output$recommandation <- renderText({
     highest_rating <- game_datas_all %>% filter(total_rating >= 90)
     row_num <- sample(1:nrow(highest_rating), 1)
-    game_html <- paste0("<h4>", highest_rating[row_num, ]$name, "</h4><p><img src=",
+    game_html <- paste0("<h4 align = center>", highest_rating[row_num, ]$name, "</h4><p align = center><img src=",
                         highest_rating[row_num, ]$cover.url,
-                        "></p><p>Rating: ",
+                        "></p><p align = center>Rating: ",
                         round(highest_rating[row_num, ]$total_rating, 2), "</p><p>Summary: ",
                         highest_rating[row_num, ]$summary, "</p>")
   })
