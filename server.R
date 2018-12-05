@@ -16,6 +16,7 @@ generate_unique_release_year <- function() {
   unique_year <- substr(filtered_data$first_release_date, 1, 4)
   unique_year <- unique(unique_year)
   unique_year <- unique_year[!is.na(unique_year)]
+  unique_year <- sort(unique_year, decreasing = TRUE)
 }
 
 generate_genre_occurrence <- function(genre_id) {
@@ -24,8 +25,10 @@ generate_genre_occurrence <- function(genre_id) {
 
 generate_pie_chart <- function(genre_name, genre_id, year) {
     result <- plot_ly(labels = genre_name, values = genre_id, 
-                      textposition = 'inside',
-                      textinfo = 'percent'
+                      #textposition = 'inside',
+                      textinfo = 'label+percent',
+                      width = 950, 
+                      height = 600
                     ) %>%
     add_pie(hole = 0.6) %>%
     layout(title = paste("Genre distribution of video games in the year of", year),  
@@ -119,7 +122,7 @@ game_datas <- game_datas_all %>% select(id, name, collection,
 collection_datas <- collection_datas %>% arrange(name)
 
 # Define server logic required to draw a histogram
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
   reactive_data <- reactive({
     game_data <- game_datas_all
     if (!is.null(input$franchise) & !is.null(input$genre) & !is.null(input$theme)) {
@@ -321,16 +324,55 @@ shinyServer(function(input, output) {
     unique_genre_dataframe <- data.frame(id, stringsAsFactors = FALSE)
     small_genre_data <- select(genre_datas, id, name)
     joined_dataframe <- inner_join(small_genre_data, unique_genre_dataframe, by="id")
-    return(checkboxGroupInput("genre_types", "Game Type(s)", choices=joined_dataframe$name, selected=joined_dataframe$name))
+    return(checkboxGroupInput("genre_types", "Game Type(s)", 
+                              choices=joined_dataframe$name, selected=joined_dataframe$name))
   })
   
-  output$genre_pie_chart <- renderPlotly({
+  observe({
+    # Run whenever reset button is pressed
+  x <- input$reset
+  if(is.null(x))
+    x <- character(0)
+    
+     #Send an update to my_url, resetting its value
+    updateCheckboxGroupInput(session, "genre_types", selected = x)
+  })
+  
+output$genre_pie_chart <- renderPlotly({
+    if (!is.null(input$genre_types)) {
     year_data <- game_datas_all %>% select(id, name, first_release_date, genres) %>% 
       filter(substr(first_release_date, 1, 4) == input$year_selection)
     genres_vector <- unlist(year_data$genres)
-    filtered_genres <- genre_datas %>% filter(name %in% input$genre_types) #might show problem
+    filtered_genres <- genre_datas %>% filter(name %in% input$genre_types) 
     genre_vector <- filtered_genres$id
     genre_occurrences <- sapply(genre_vector, generate_genre_occurrence)
+    total_count <- sum(genre_occurrences)
+    output$most_genre <- renderText({
+      most_popular_number <- max(genre_occurrences)
+      most_popular_index <- which(genre_occurrences == most_popular_number)
+      most_popular_name <- input$genre_types
+      most_popular_name <- most_popular_name[most_popular_index]
+      most_popular_percent <- round(most_popular_number / total_count * 100, digits = 3)
+      #most_popular_row <- filter(genre_datas, name == most_popular_name)
+      
+      paste("The game type of", most_popular_name, 
+            "is the most popular, with a proportion of", most_popular_percent, 
+            "% in the selected game types.")
+    })
+    output$least_genre <- renderText({
+      least_popular_number <- min(genre_occurrences)
+      least_popular_index <- which(genre_occurrences == least_popular_number)
+      least_popular_name <- input$genre_types
+      least_popular_name <- least_popular_name[least_popular_index]
+      least_popular_percent <- round(least_popular_number / total_count * 100, digits = 3)
+      #most_popular_row <- filter(genre_datas, name == most_popular_name)
+      
+      paste("The game type of", least_popular_name, 
+            "is the least popular, with a proportion of", least_popular_percent, 
+            "% in the selected game types.")
+    })
     generate_pie_chart(input$genre_types, genre_occurrences, input$year_selection)
+    }
   })
+
 })
