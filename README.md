@@ -4,6 +4,9 @@ author: "Wayne Li, Eric Chen, Andi Ren"
 date: "December 4, 2018"
 output: html_document
 ---
+## Link
+You can visit our app by [clicking this link](https://wayneli1063.shinyapps.io/Info201-Game-Viz-Group-Project/)!
+
 ## Group Name: Game-Viz-Group
 #### Group Members
 - Haoyang Chen

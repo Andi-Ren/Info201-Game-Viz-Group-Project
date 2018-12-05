@@ -37,3 +37,6 @@ vignettes/*.pdf
 
 # The api key
 keys.R
+
+# The Shinyapp.io connect folder
+/rsconnect

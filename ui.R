@@ -11,7 +11,7 @@ shinyUI(tagList(
     tabPanel(
       "About",
       mainPanel(
-        h3("Group Name: Game-Viz-Group"),
+        h3("Group Name: Game-Viz"),
         HTML({
           paste(
             "<ul><strong>Group Members</strong>",
@@ -45,8 +45,8 @@ shinyUI(tagList(
         and the average score of the group, is shown below the line plot."),
         p("In the tab of 'Game Hotness Gauge', the users can select one measurement of a particular 
         game that they are interested in, and the gauge chart will show the value of the selected 
-        game in the selected measurement. A picture and an overview of the selected game are 
-        shown below the gauge chart.")
+        game in the selected measurement. A picture and an overview of the selected game are shown 
+        below the gauge chart")
       )
     ),
     tabPanel(
@@ -103,5 +103,9 @@ shinyUI(tagList(
         )
       )
     )
+  ),
+  tags$style(type="text/css",
+             ".shiny-output-error { visibility: hidden; }",
+             ".shiny-output-error:before { visibility: hidden; }"
   )
 ))
