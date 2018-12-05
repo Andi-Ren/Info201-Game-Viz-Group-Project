@@ -30,7 +30,7 @@ shinyUI(tagList(
         h3("Who is the target audience?"),
         p("Our target audience is video game players who likes to analyze and critique"),
         h3("How do users interact with the app and what visualizations will be shown?"),
-        p("The user can visualize the information about video game by manipulating interacting 
+        p("The user can visualize the information about video game by interacting 
          with the widgets in the side panel."),
         p("In the tab of 'Genre Distribution', the user can enter a particular release year 
         and check different genre types to compare the proportions shown in the pie graph. 
