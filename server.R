@@ -100,7 +100,7 @@ generate_gauge_chart <- function(value, max, name, measure, tabs, colors) {
     hole = 0.5,
     textinfo = "label",
     textposition = "inside",
-    hoverinfo = " ",
+    hoverinfo = "none",
     domain = list(x = c(0, 1), y = c(0, 1)),
     marker = list(colors = c(
       "transparent", "rgb(232,226,202)",
