@@ -1,5 +1,6 @@
 library(shiny)
 library(shinythemes)
+library(shinyWidgets)
 library(plotly)
 # Define UI for application that draws a histogram
 shinyUI(tagList(
@@ -54,8 +55,9 @@ shinyUI(tagList(
                 htmlOutput("lineplot_text")
               )),
     tabPanel("Game Hotness Gauge",
+             titlePanel("Game Status Gauge and Summary"),
               sidebarPanel(
-                  uiOutput("select_game"),
+                  uiOutput("search_game"),
                   uiOutput("select_measure")
               ),
               mainPanel(
