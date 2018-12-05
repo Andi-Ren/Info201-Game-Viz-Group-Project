@@ -23,7 +23,7 @@ shinyUI(tagList(
       h3("What is this app and what is it for."),
       p("This Shiny web app helps the users to visualize video game related information."),
       h3("What is the dataset we are working with?"),
-      p("We’ll be working with the Internet Games Database(IGDB), a community-driven site 
+      p("We'll be working with the Internet Games Database(IGDB), a community-driven site 
         that gathers and shares game-related information. 
         The data is collected by IGDB.com, and we gain access through its API."),
       h3("Who is the target audience?"),
