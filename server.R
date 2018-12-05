@@ -132,8 +132,9 @@ generate_gauge_chart <- function(value, max, name, measure, tabs) {
 #    filter(substr(first_release_date, 1, 4) == input$year_selection)
 #}
 
-# Define server logic required to draw a histogram
+# Define server logic required to produce home page, and 3 plot tabs
 shinyServer(function(input, output, session) {
+  # This reactive function filters out a list of games needed for plotting.
   reactive_data <- reactive({
     game_data <- game_datas_all
     if (!is.null(input$franchise) & !is.null(input$genre) & !is.null(input$theme)) {
@@ -164,6 +165,7 @@ shinyServer(function(input, output, session) {
       select(name, first_release_date, total_rating) %>%
       arrange(first_release_date)
   })
+  # This function renders the lists of dropdown for users to select.
   output$select_element <- renderUI({
     output = tagList()
     output[[1]] = selectizeInput("genre",
@@ -185,6 +187,7 @@ shinyServer(function(input, output, session) {
                   )
     output
   })
+  # This funtion renders a slider for user to select a range of year.
   output$select_year_wayne <- renderUI({
     sliderInput("year",
                 label = "Year",
@@ -192,9 +195,12 @@ shinyServer(function(input, output, session) {
                 max = 2018,
                 value = c(1971, 2018))
   })
+  # This function renders a checkbox for user to check 
+  # if they want dlcs (expansion) to be included along with base game.
   output$base_game <- renderUI({
     checkboxInput("base", label = "Base games only", value = FALSE)
   })
+  # This function renders a plotly plot for the "game rating summary" page.
   output$lineplot <- renderPlotly({
     game_data <- reactive_data()
     if (nrow(game_data) >= 0) {
@@ -206,6 +212,8 @@ shinyServer(function(input, output, session) {
               layout(xaxis = x_style, yaxis = y_style)
     }
   })
+  # This function renders a paragraph of summary
+  # for the "game rating summary" page.
   output$lineplot_text <- renderText({
     game_data <- reactive_data()
     if (nrow(game_data) > 0) {
