@@ -36,14 +36,14 @@ generate_pie_chart <- function(genre_name, genre_id, year) {
            yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
 }
 
-generate_gauge_chart <- function(value, max) {
+generate_gauge_chart <- function(value, max, name, tabs, Measure) {
   section <- max / 5
   rad <- (1 - (value / max)) * pi
   
   base_plot <- plot_ly(
     type = "pie",
     values = c(40, 10, 10, 10, 10, 10, 10),
-    labels = c(" ", "0", as.character(section), as.character(section * 2), as.character(section * 3), as.character(section * 4), as.character(section * 5)),
+    labels = c(" ", "0", as.character(section), as.character(round(section * 2)), as.character(round(section * 3)), as.character(round(section * 4)), as.character(round(section * 5))),
     rotation = 108,
     direction = "clockwise",
     hole = 0.6,
@@ -61,7 +61,7 @@ generate_gauge_chart <- function(value, max) {
     base_plot,
     type = "pie",
     values = c(50, 10, 10, 10, 10, 10),
-    labels = c(" ", "Dead", "Fading", "Alive", "Hot", "Red Hot!"),
+    labels = tabs,
     rotation = 90,
     direction = "clockwise",
     hole = 0.5,
@@ -101,7 +101,7 @@ generate_gauge_chart <- function(value, max) {
                        x = 0.5, 
                        y = 0.4, 
                        showarrow = F, 
-                       text = paste("The public attention for is", value)))
+                       text = paste("The", Measure, "for", name, "is", value)))
 }
 
 #generate_filtered_genre <- function() {
@@ -141,6 +141,7 @@ shinyServer(function(input, output) {
     }
     game_data
   })
+  
   output$select_genre <- renderUI({
     #game_data <- reactive_data()
     #genre_list <- unlist(game_data$genre)
@@ -152,6 +153,7 @@ shinyServer(function(input, output) {
                 selected = "All"
                 )
   })
+  
   output$select_theme <- renderUI({
     #game_data <- reactive_data()
     #theme_list <- unlist(game_data$theme)
@@ -163,6 +165,7 @@ shinyServer(function(input, output) {
                 selected = "All"
                 )
   })
+  
   output$select_franchise <- renderUI({
     #game_data <- reactive_data()
     #franchise_list <- unlist(game_data$franchise)
@@ -176,6 +179,7 @@ shinyServer(function(input, output) {
                 selected = "All"
                 )
   })
+  
   output$select_year_wayne <- renderUI({
     sliderInput("year",
                 label = "Year",
@@ -183,8 +187,10 @@ shinyServer(function(input, output) {
                 max = 2018,
                 value = c(1971, 2018))
   })
+  
   output$base_game <- renderUI({
     checkboxInput("base", label = "Base games only", value = FALSE)
+    
   })
   output$lineplot <- renderPlotly({
     game_data <- reactive_data()
@@ -223,7 +229,7 @@ shinyServer(function(input, output) {
                 label = "Measurement",
                 selectize = FALSE,
                 size = 1,
-                choices = c("Public Attention", "Ratings", "Time to beat"))
+                choices = c("Public Attention", "Overall Ratings"))
   })
   
   output$gauge_plot <- renderPlotly({ 
@@ -233,11 +239,18 @@ shinyServer(function(input, output) {
     if(measure == "Public Attention") {
       value <- game$popularity
       max <- max(game_datas_all$popularity)
+      tabs <- c(' ', 1 ,2 ,3 ,4 ,5)
     } else if (measure == "Ratings") {
       value <- game$total_rating
       max <- max(game_datas_all$total_rating)
+      tabs <- c(' ', 2, 3, 4, 5, 6)
+    } else if (measure == "Player Ratings") {
+      value <- game$total_rating
+      max <- max(game_datas_all$total_rating)
+      tabs <- c(' ', 2, 3, 4, 5, 6)
     }
-    generate_gauge_chart(value, max)
+    generate_gauge_chart(value, max, name, tabs, measure)
+    #generate_gauge_chart(value2, max2)
   })
 
   output$select_year <- renderUI({
