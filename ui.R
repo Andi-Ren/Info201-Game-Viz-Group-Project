@@ -1,13 +1,3 @@
-#
-# This is the user-interface definition of a Shiny web application. You can
-# run the application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-# install.packages("shinythemes")
-# install.packages("plotly")
 library(shiny)
 library(shinythemes)
 library(plotly)
@@ -35,7 +25,8 @@ shinyUI(tagList(
       sidebarLayout(
         sidebarPanel(
           uiOutput("select_year"),
-          actionButton("reset", "Clear All Game Types", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+          actionButton("reset", "Clear All Game Types",
+                       style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
           uiOutput("filter_genre")
         ),
         mainPanel(
@@ -44,7 +35,7 @@ shinyUI(tagList(
             textOutput("least_genre"),
             br(),
             textOutput("most_genre"),
-            br(), 
+            br(),
             hr(),
             plotlyOutput("genre_pie_chart")
         )
