@@ -10,9 +10,23 @@
 library(shiny)
 library(dplyr)
 library(plotly)
-library(ggplot2)
+
+load("data/5000games.Rda")
+load("data/companylist.Rdat")
+load("data/genrelist.Rdat")
+load("data/themedata.Rdat")
+load("data/collectiondata.Rdat")
+game_datas_all <- game_datas_all %>%
+  mutate(first_release_date = as.Date(game_datas_all$first_release_date))
+game_datas <- game_datas_all %>% select(id, name, collection,
+                                        total_rating, game,
+                                        developers, themes,
+                                        genres, first_release_date)
+collection_datas <- collection_datas %>% arrange(name)
+
 generate_unique_release_year <- function() {
-  filtered_data <- game_datas_all %>% select(id, name, first_release_date, genres) 
+  filtered_data <- game_datas_all %>%
+    select(id, name, first_release_date, genres)
   unique_year <- substr(filtered_data$first_release_date, 1, 4)
   unique_year <- unique(unique_year)
   unique_year <- unique_year[!is.na(unique_year)]
@@ -24,20 +38,23 @@ generate_genre_occurrence <- function(genre_id) {
 }
 
 generate_pie_chart <- function(genre_name, genre_id, year) {
-    result <- plot_ly(labels = genre_name, values = genre_id, 
-                      #textposition = 'inside',
-                      textinfo = 'label+percent',
-                      width = 950, 
-                      height = 600
-                    ) %>%
+  result <- plot_ly(labels = genre_name, values = genre_id,
+                    #textposition = 'inside',
+                    textinfo = "label+percent",
+                    width = 950,
+                    height = 600
+  ) %>%
     add_pie(hole = 0.6) %>%
-    layout(title = paste("Genre distribution of video games in the year of", year),  
+    layout(title = paste("Genre distribution of video games in the year of",
+                         year),
            font = list(
-             color = '#fff'),
+             color = "#fff"),
            showlegend = F,
-           paper_bgcolor='transparent',
-           xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-           yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+           paper_bgcolor = "transparent",
+           xaxis = list(showgrid = FALSE, zeroline = FALSE,
+                        showticklabels = FALSE),
+           yaxis = list(showgrid = FALSE, zeroline = FALSE,
+                        showticklabels = FALSE))
 }
 
 generate_gauge_chart <- function(value, max) {
@@ -47,7 +64,9 @@ generate_gauge_chart <- function(value, max) {
   base_plot <- plot_ly(
     type = "pie",
     values = c(40, 10, 10, 10, 10, 10, 10),
-    labels = c(" ", "0", as.character(section), as.character(section * 2), as.character(section * 3), as.character(section * 4), as.character(section * 5)),
+    labels = c(" ", "0", as.character(section), as.character(section * 2),
+               as.character(section * 3), as.character(section * 4),
+               as.character(section * 5)),
     rotation = 108,
     direction = "clockwise",
     hole = 0.6,
@@ -55,9 +74,11 @@ generate_gauge_chart <- function(value, max) {
     textposition = "outside",
     hoverinfo = "none",
     domain = list(x = c(0, 1), y = c(0, 1)),
-    marker = list(colors = c('transparent', 'transparent', 'transparent', 'transparent', 'transparent', 'transparent','transparent')),
+    marker = list(colors = c("transparent", "transparent", "transparent",
+                             "transparent", "transparent", "transparent",
+                             "transparent")),
     showlegend = FALSE,
-    width = 1400, 
+    width = 1400,
     height = 700
   )
   
@@ -73,8 +94,10 @@ generate_gauge_chart <- function(value, max) {
     textposition = "inside",
     hoverinfo = "name",
     domain = list(x = c(0, 1), y = c(0, 1)),
-    marker = list(colors = c('transparent', 'rgb(232,226,202)', 'rgb(244,220,66)', 'rgb(244,166,66)', 'rgb(244,100,66)', 'rgb(244,66,66)')),
-    showlegend= FALSE
+    marker = list(colors = c("transparent", "rgb(232,226,202)",
+                             "rgb(244,220,66)", "rgb(244,166,66)",
+                             "rgb(244,100,66)", "rgb(244,66,66)")),
+    showlegend = FALSE
   )
   
   a <- list(
@@ -82,29 +105,29 @@ generate_gauge_chart <- function(value, max) {
     autotick = FALSE,
     showgrid = FALSE,
     zeroline = FALSE)
-   
   
   base_chart <- layout(
     base_plot,
     font = list(
-      color = '#fff'),
+      color = "#fff"),
     shapes = list(
       list(
-        type = 'path',
-        path = paste('M 0.475 0.5 L', as.character(0.15 * cos(rad) + 0.5), as.character(0.3 * sin(rad) + 0.5), 'L 0.525 0.5 Z'),
-        xref = 'paper',
-        yref = 'paper',
-        fillcolor = 'yellow'
+        type = "path",
+        path = paste("M 0.475 0.5 L", as.character(0.15 * cos(rad) + 0.5),
+                     as.character(0.3 * sin(rad) + 0.5), "L 0.525 0.5 Z"),
+        xref = "paper",
+        yref = "paper",
+        fillcolor = "yellow"
       )
     ),
     xaxis = a,
     yaxis = a,
-    paper_bgcolor='transparent',
-    annotations = list(xref = 'paper', 
-                       yref = 'paper', 
-                       x = 0.5, 
-                       y = 0.4, 
-                       showarrow = F, 
+    paper_bgcolor = "transparent",
+    annotations = list(xref = "paper",
+                       yref = "paper",
+                       x = 0.5,
+                       y = 0.4,
+                       showarrow = F,
                        text = paste("The public attention for is", value)))
 }
 
@@ -112,19 +135,6 @@ generate_gauge_chart <- function(value, max) {
 #  result <- game_datas_all %>% select(id, name, first_release_date, genres) %>% 
 #    filter(substr(first_release_date, 1, 4) == input$year_selection)
 #}
-
-load("data/5000games.Rda")
-load("data/companylist.Rdat")
-load("data/genrelist.Rdat")
-load("data/themedata.Rdat")
-load("data/collectiondata.Rdat")
-game_datas_all <- game_datas_all %>% 
-  mutate(first_release_date = as.Date(game_datas_all$first_release_date))
-game_datas <- game_datas_all %>% select(id, name, collection,
-                                        popularity, total_rating, total_rating_count,
-                                        developers, themes, genres, first_release_date,
-                                        hypes, cover.url, game)
-collection_datas <- collection_datas %>% arrange(name)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
@@ -154,22 +164,23 @@ shinyServer(function(input, output, session) {
     if (input$base[1]) {
       game_data <- game_data %>% filter(is.na(game))
     }
-    game_data <- game_data %>% select(name, first_release_date, total_rating) %>%
+    game_data <- game_data %>%
+      select(name, first_release_date, total_rating) %>%
       arrange(first_release_date)
   })
   output$select_element <- renderUI({
-    output = tagList()
-    output[[1]] = selectInput("genre",
+    output <- tagList()
+    output[[1]] <- selectInput("genre",
                     label = h4("Genre"),
                     choices = c("Select all" = "all", genre_datas$name),
                     selected = "all"
                   )
-    output[[2]] = selectInput("theme",
+    output[[2]] <- selectInput("theme",
                     label = h4("Theme"),
                     choices = c("Select all" = "all", theme_datas$name),
                     selected = "all"
                   )
-    output[[3]] = selectInput("franchise",
+    output[[3]] <- selectInput("franchise",
                     label = h4("Franchise"),
                     choices = c("Select all" = "all", collection_datas$name),
                     selectize = FALSE,
@@ -194,17 +205,21 @@ shinyServer(function(input, output, session) {
       x_style <- list(title = "Launch Date")
       y_style <- list(title = "Rating", range = c(10, 100))
       plot <- plot_ly(game_data, x = ~first_release_date, y = ~total_rating,
-                      type = 'scatter', mode = 'lines+markers', text = ~name) %>%
+                      type = "scatter", mode = "lines+markers",
+                      text = ~name) %>%
               layout(xaxis = x_style, yaxis = y_style)
     }
   })
   output$lineplot_text <- renderText({
     game_data <- reactive_data()
     if (nrow(game_data) > 0) {
-      sum_text <- paste0("<p>According to our database, from ", input$year[1], "-01 to ",
+      sum_text <- paste0("<p>According to our database, from ",
+                         input$year[1], "-01 to ",
                          input$year[2], "-12, there are <strong>",
-                         nrow(game_data), "</strong> games in ", input$genre[1], " genre, ",
-                         input$theme, " theme, ", " and ", input$franchise, " franchise. ")
+                         nrow(game_data), "</strong> games in ",
+                         input$genre[1], " genre, ",
+                         input$theme, " theme, ", " and ",
+                         input$franchise, " franchise. ")
       if (mean(game_data$total_rating) >= 90) {
         score_text <- "\"<strong>Universal Acclaim</strong>\""
       } else if (mean(game_data$total_rating) >= 75) {
@@ -218,35 +233,53 @@ shinyServer(function(input, output, session) {
       }
       if (nrow(game_data) <= 1) {
         sum_text <- paste0(sum_text, "</p><p>",
-                           "According to the criteria of Metacritic, the score of this game would qualify as ",
+                           "According to the criteria of Metacritic,",
+                           " the score of this game would qualify as ",
                            score_text, ". </p>")
       } else if (nrow(game_data) <= 2) {
-        sum_text <- paste0(sum_text, "</p><p>", " The average score of these games are ",
+        sum_text <- paste0(sum_text, "</p><p>",
+                           " The average score of these games are ",
                            round(mean(game_data$total_rating), 2), ". </p><p>",
-                           "According to the criteria of Metacritic, the average score of this group would qualify as ",
+                           "According to the criteria of Metacritic, ",
+                           "the average score of this group would qualify as ",
                            score_text, ". </p>")
       } else {
-        sum_text <- paste0(sum_text, "</p><p>The highest rated game here is <strong>",
+        sum_text <- paste0(sum_text,
+                           "</p><p>The highest rated game here is <strong>",
                            game_data[which.max(game_data$total_rating), ]$name,
-                           "</strong> with a rating of <strong>", round(max(game_data$total_rating), 2),
-                           "</strong>, and the lowest rated game is <strong>", 
+                           "</strong> with a rating of <strong>",
+                           round(max(game_data$total_rating), 2),
+                           "</strong>, and the lowest rated game is <strong>",
                            game_data[which.min(game_data$total_rating), ]$name,
-                           "</strong> with a rating of <strong>", round(min(game_data$total_rating), 2), "</strong>. </p><p>",
-                           " The <strong>average rating</strong> of these games are <strong>",
+                           "</strong> with a rating of <strong>",
+                           round(min(game_data$total_rating), 2),
+                           "</strong>. </p><p>", " The <strong>average rating",
+                           "</strong> of these games are <strong>",
                            round(mean(game_data$total_rating), 2),
                            "</strong> with a standard deviation of <strong>",
-                           round(sd(game_data$total_rating), 2), "</strong>. </p><p>",
-                           "According to the criteria of <a href=\"https://www.metacritic.com/about-metascores\">Metacritic</a>,",
+                           round(sd(game_data$total_rating), 2),
+                           "</strong>. </p><p>", "According to the",
+                           "criteria of <a href=\"https://www.metacritic.com",
+                           "/about-metascores\">Metacritic</a>,",
                            "the average score of this group would qualify as ",
                            score_text, ". </p>")
       }
     } else {
-      sum_text <- "There is 0 game in your selected genre, theme, and franchise."
+      sum_text <- paste0("There is 0 game in your selected genre, ",
+                         "theme, and franchise.")
     }
     sum_text
   })
   output$recommandation <- renderText({
-    
+    highest_rating <- game_datas_all %>% filter(total_rating >= 90)
+    row_num <- sample(1:nrow(highest_rating), 1)
+    game_html <- paste0("<h4 align = center>", highest_rating[row_num, ]$name,
+                        "</h4><p align = center><img src=",
+                        highest_rating[row_num, ]$cover.url,
+                        "></p><p align = center>Rating: ",
+                        round(highest_rating[row_num, ]$total_rating, 2),
+                        "</p><p>Summary: ",
+                        highest_rating[row_num, ]$summary, "</p>")
   })
   output$select_game <- renderUI({
     game <- game_datas_all
@@ -266,7 +299,7 @@ shinyServer(function(input, output, session) {
                 size = 1,
                 choices = c("Public Attention", "Ratings", "Time to beat"))
   })
-  output$gauge_plot <- renderPlotly({ 
+  output$gauge_plot <- renderPlotly({
     game <- arrange(filter(game_datas_all, name == input$Games[1]), -popularity)[1,]
     name <- game$name
     measure <- input$Measurement[1]
@@ -281,37 +314,42 @@ shinyServer(function(input, output, session) {
   })
 
   output$select_year <- renderUI({
-    return(selectInput("year_selection", "Select Release Year", choices=generate_unique_release_year()))
+    return(selectInput("year_selection", "Select Release Year",
+                       choices = generate_unique_release_year()))
   })
   
   output$filter_genre <- renderUI({
-    selected_year_data <- game_datas_all %>% select(id, name, first_release_date, genres) %>% 
-          filter(substr(first_release_date, 1, 4) == input$year_selection)
+    selected_year_data <- game_datas_all %>%
+      select(id, name, first_release_date, genres) %>%
+      filter(substr(first_release_date, 1, 4) == input$year_selection)
     unique_genre_number <- unique(unlist(selected_year_data$genres))
     id <- unique_genre_number
     unique_genre_dataframe <- data.frame(id, stringsAsFactors = FALSE)
     small_genre_data <- select(genre_datas, id, name)
-    joined_dataframe <- inner_join(small_genre_data, unique_genre_dataframe, by="id")
+    joined_dataframe <- inner_join(small_genre_data,
+                                   unique_genre_dataframe, by = "id")
     return(checkboxGroupInput("genre_types", "Game Type(s)", 
-                              choices=joined_dataframe$name, selected=joined_dataframe$name))
+                              choices = joined_dataframe$name,
+                              selected = joined_dataframe$name))
   })
   
   observe({
     # Run whenever reset button is pressed
   x <- input$reset
-  if(is.null(x))
+  if (is.null(x))
     x <- character(0)
     
      #Send an update to my_url, resetting its value
     updateCheckboxGroupInput(session, "genre_types", selected = x)
   })
   
-output$genre_pie_chart <- renderPlotly({
+  output$genre_pie_chart <- renderPlotly({
     if (!is.null(input$genre_types)) {
-    year_data <- game_datas_all %>% select(id, name, first_release_date, genres) %>% 
+    year_data <- game_datas_all %>%
+      select(id, name, first_release_date, genres) %>%
       filter(substr(first_release_date, 1, 4) == input$year_selection)
     genres_vector <- unlist(year_data$genres)
-    filtered_genres <- genre_datas %>% filter(name %in% input$genre_types) 
+    filtered_genres <- genre_datas %>% filter(name %in% input$genre_types)
     genre_vector <- filtered_genres$id
     genre_occurrences <- sapply(genre_vector, generate_genre_occurrence)
     total_count <- sum(genre_occurrences)
@@ -320,11 +358,12 @@ output$genre_pie_chart <- renderPlotly({
       most_popular_index <- which(genre_occurrences == most_popular_number)
       most_popular_name <- input$genre_types
       most_popular_name <- most_popular_name[most_popular_index]
-      most_popular_percent <- round(most_popular_number / total_count * 100, digits = 3)
+      most_popular_percent <- round(most_popular_number / total_count * 100,
+                                    digits = 3)
       #most_popular_row <- filter(genre_datas, name == most_popular_name)
       
-      paste("The game type of", most_popular_name, 
-            "is the most popular, with a proportion of", most_popular_percent, 
+      paste("The game type of", most_popular_name,
+            "is the most popular, with a proportion of", most_popular_percent,
             "% in the selected game types.")
     })
     output$least_genre <- renderText({
@@ -332,9 +371,10 @@ output$genre_pie_chart <- renderPlotly({
       least_popular_index <- which(genre_occurrences == least_popular_number)
       least_popular_name <- input$genre_types
       least_popular_name <- least_popular_name[least_popular_index]
-      least_popular_percent <- round(least_popular_number / total_count * 100, digits = 3)
-      paste("The game type of", least_popular_name, 
-            "is the least popular, with a proportion of", least_popular_percent, 
+      least_popular_percent <- round(least_popular_number / total_count * 100,
+                                     digits = 3)
+      paste("The game type of", least_popular_name,
+            "is the least popular, with a proportion of", least_popular_percent,
             "% in the selected game types.")
     })
     generate_pie_chart(input$genre_types, genre_occurrences, input$year_selection)
