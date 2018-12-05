@@ -6,8 +6,7 @@ library(plotly)
 shinyUI(tagList(
   #shinythemes::themeSelector(),
   navbarPage(
-    #"superhero",
-    theme = shinytheme("superhero"),  # <--- Uncomment this for using a theme
+    theme = shinytheme("superhero"),  
     "Game-Viz-Group",
     tabPanel(
       "About",
@@ -30,6 +29,8 @@ shinyUI(tagList(
         ),
         mainPanel(
             h3("Information Obtained from the Pie Chart"),
+            br(),
+            textOutput("total_genres"),
             br(),
             textOutput("least_genre"),
             br(),
