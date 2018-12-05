@@ -3,7 +3,6 @@ library(dplyr)
 library(plotly)
 library(shinyWidgets)
 
-
 load("data/5000games.Rda")
 load("data/companylist.Rdat")
 load("data/genrelist.Rdat")
@@ -148,11 +147,6 @@ generate_gauge_chart <- function(value, max, name, measure, tabs, colors) {
     )
   )
 }
-
-# generate_filtered_genre <- function() {
-#  result <- game_datas_all %>% select(id, name, first_release_date, genres) %>%
-#    filter(substr(first_release_date, 1, 4) == input$year_selection)
-# }
 
 # Define server logic required to produce home page, and 3 plot tabs
 shinyServer(function(input, output, session) {
