@@ -333,8 +333,6 @@ output$genre_pie_chart <- renderPlotly({
       least_popular_name <- input$genre_types
       least_popular_name <- least_popular_name[least_popular_index]
       least_popular_percent <- round(least_popular_number / total_count * 100, digits = 3)
-      #most_popular_row <- filter(genre_datas, name == most_popular_name)
-      
       paste("The game type of", least_popular_name, 
             "is the least popular, with a proportion of", least_popular_percent, 
             "% in the selected game types.")
