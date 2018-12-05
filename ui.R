@@ -7,11 +7,11 @@ shinyUI(tagList(
   # shinythemes::themeSelector(),
   navbarPage(
     theme = shinytheme("superhero"),
-    "Game-Viz-Group",
+    "Game-Viz",
     tabPanel(
       "About",
       mainPanel(
-        h3("Group Name: Game-Viz"),
+        h3("Group Name: Game-Viz-Group"),
         HTML({
           paste(
             "<ul><strong>Group Members</strong>",
