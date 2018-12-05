@@ -45,7 +45,7 @@ shinyUI(tagList(
       p("In the tab of 'Game Hotness Gauge', the users can select one measurement of a particular 
         game that they are interested in, and the gauge chart will show the value of the selected 
         game in the selected measurement. A picture and an overview of the selected game are 
-        shown below the gauge chart. "),
+        shown below the gauge chart."),
       fluidPage(
         htmlOutput("recommandation"))
       )
