@@ -48,21 +48,22 @@ shinyUI(tagList(
         )
       )
     ),
-    tabPanel("Rating Trend",
-             titlePanel("Ratings Trend Across Time, Genre, Theme, and Franchise"),
+    tabPanel("Game Rating Summary",
+             titlePanel("Rating Summary of Games Across Time, Genre, Theme, and Franchise"),
               sidebarPanel(
-                uiOutput("select_genre"),
-                uiOutput("select_theme"),
-                uiOutput("select_franchise"),
+                uiOutput("select_element"),
                 uiOutput("select_year_wayne"),
                 uiOutput("base_game")
               ),
               mainPanel(
-                plotlyOutput("lineplot")
+                plotlyOutput("lineplot"),
+                br(),
+                htmlOutput("lineplot_text")
               )),
     tabPanel("Game Hotness Gauge",
               sidebarPanel(
-                  uiOutput("select_game")
+                  uiOutput("select_game"),
+                  uiOutput("select_measure")
               ),
               mainPanel(
                 plotlyOutput("gauge_plot")
