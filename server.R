@@ -364,6 +364,10 @@ shinyServer(function(input, output, session) {
     genre_vector <- filtered_genres$id
     genre_occurrences <- sapply(genre_vector, generate_genre_occurrence)
     total_count <- sum(genre_occurrences)
+    output$total_genres <- renderText({
+      different_genres_total <- length(input$genre_types)
+      paste("There are", different_genres_total, "different game types in", input$year_selection)
+    })
     output$most_genre <- renderText({
       most_popular_number <- max(genre_occurrences)
       most_popular_index <- which(genre_occurrences == most_popular_number)
@@ -371,8 +375,6 @@ shinyServer(function(input, output, session) {
       most_popular_name <- most_popular_name[most_popular_index]
       most_popular_percent <- round(most_popular_number / total_count * 100,
                                     digits = 3)
-      #most_popular_row <- filter(genre_datas, name == most_popular_name)
-      
       paste("Most popular:", most_popular_name, 
             ", with a proportion of", most_popular_percent, 
             "% in the selected types.")

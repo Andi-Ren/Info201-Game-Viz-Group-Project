@@ -63,6 +63,8 @@ shinyUI(tagList(
         mainPanel(
             h3("Information Obtained from the Pie Chart"),
             br(),
+            textOutput("total_genres"),
+            br(),
             textOutput("least_genre"),
             br(),
             textOutput("most_genre"),
