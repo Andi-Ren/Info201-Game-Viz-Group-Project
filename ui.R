@@ -28,19 +28,23 @@ shinyUI(tagList(
         and we gain access through its API."
     ),
     tabPanel(
-      "Graph 1",
+      "Genre Distribution",
       titlePanel("Genre distribution of video games over the years"),
       sidebarLayout(
         sidebarPanel(
           uiOutput("select_year"),
+          actionButton("reset", "Clear All Game Types", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
           uiOutput("filter_genre")
         ),
         mainPanel(
-          tabsetPanel(
-            tabPanel("Pie Chart", plotlyOutput("genre_pie_chart"), textOutput("test_genre")),
-            tabPanel("Tab 2"),
-            tabPanel("Tab 3")
-          )
+            h1("Information Obtained from the Pie Chart"),
+            br(),
+            textOutput("least_genre"),
+            br(),
+            textOutput("most_genre"),
+            br(), 
+            hr(),
+            plotlyOutput("genre_pie_chart")
         )
       )
     ),
