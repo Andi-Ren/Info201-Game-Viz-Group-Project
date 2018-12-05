@@ -25,7 +25,9 @@ shinyUI(tagList(
         for video game players who likes to analyze and critique.
         we work with data retrived from Internet Games Database(IGDB), 
         a community-driven site that gathers and shares game-related information. The data is collected by IGDB.com, 
-        and we gain access through its API."
+        and we gain access through its API.",
+      mainPanel(
+        htmlOutput("recommandation"))
     ),
     tabPanel(
       "Genre Distribution",

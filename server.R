@@ -245,7 +245,13 @@ shinyServer(function(input, output, session) {
     sum_text
   })
   output$recommandation <- renderText({
-    
+    highest_rating <- game_datas_all %>% filter(total_rating >= 90)
+    row_num <- sample(1:nrow(highest_rating), 1)
+    game_html <- paste0("<h4>", highest_rating[row_num, ]$name, "</h4><p><img src=",
+                        highest_rating[row_num, ]$cover.url,
+                        "></p><p>Rating: ",
+                        round(highest_rating[row_num, ]$total_rating, 2), "</p><p>Summary: ",
+                        highest_rating[row_num, ]$summary, "</p>")
   })
   output$select_game <- renderUI({
     game <- game_datas_all
@@ -305,7 +311,7 @@ shinyServer(function(input, output, session) {
     updateCheckboxGroupInput(session, "genre_types", selected = x)
   })
   
-output$genre_pie_chart <- renderPlotly({
+  output$genre_pie_chart <- renderPlotly({
     if (!is.null(input$genre_types)) {
     year_data <- game_datas_all %>% select(id, name, first_release_date, genres) %>% 
       filter(substr(first_release_date, 1, 4) == input$year_selection)
