@@ -11,7 +11,7 @@ shinyUI(tagList(
     tabPanel(
       "About",
       mainPanel(
-        h3("Group Name: Game-Viz-Group"),
+        h3("Group Name: Game-Viz"),
         HTML({
           paste(
             "<ul><strong>Group Members</strong>",
@@ -103,5 +103,9 @@ shinyUI(tagList(
         )
       )
     )
+  ),
+  tags$style(type="text/css",
+             ".shiny-output-error { visibility: hidden; }",
+             ".shiny-output-error:before { visibility: hidden; }"
   )
 ))
