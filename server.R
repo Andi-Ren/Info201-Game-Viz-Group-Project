@@ -86,8 +86,8 @@ generate_gauge_chart <- function(value, max, name, measure, tabs, colors) {
       "transparent"
     )),
     showlegend = FALSE,
-    width = 1000,
-    height = 500
+    width = 1200,
+    height = 600
   )
 
   base_plot <- add_trace(
