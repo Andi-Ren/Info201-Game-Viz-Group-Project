@@ -58,7 +58,8 @@ shinyUI(tagList(
               )),
     tabPanel("Game Hotness Gauge",
               sidebarPanel(
-                  uiOutput("select_game")
+                  uiOutput("select_game"),
+                  uiOutput("select_measure")
               ),
               mainPanel(
                 plotlyOutput("gauge_plot")

@@ -37,6 +37,74 @@ generate_pie_chart <- function(genre_name, genre_id, year) {
            yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
 }
 
+generate_gauge_chart <- function(value, max) {
+  section <- max / 5
+  rad <- (1 - (value / max)) * pi
+  
+  base_plot <- plot_ly(
+    type = "pie",
+    values = c(40, 10, 10, 10, 10, 10, 10),
+    labels = c(" ", "0", as.character(section), as.character(section * 2), as.character(section * 3), as.character(section * 4), as.character(section * 5)),
+    rotation = 108,
+    direction = "clockwise",
+    hole = 0.6,
+    textinfo = "label",
+    textposition = "outside",
+    hoverinfo = "none",
+    domain = list(x = c(0, 1), y = c(0, 1)),
+    marker = list(colors = c('transparent', 'transparent', 'transparent', 'transparent', 'transparent', 'transparent','transparent')),
+    showlegend = FALSE,
+    width = 1400, 
+    height = 700
+  )
+  
+  base_plot <- add_trace(
+    base_plot,
+    type = "pie",
+    values = c(50, 10, 10, 10, 10, 10),
+    labels = c(" ", "Dead", "Fading", "Alive", "Hot", "Red Hot!"),
+    rotation = 90,
+    direction = "clockwise",
+    hole = 0.5,
+    textinfo = "label",
+    textposition = "inside",
+    hoverinfo = "name",
+    domain = list(x = c(0, 1), y = c(0, 1)),
+    marker = list(colors = c('transparent', 'rgb(232,226,202)', 'rgb(244,220,66)', 'rgb(244,166,66)', 'rgb(244,100,66)', 'rgb(244,66,66)')),
+    showlegend= FALSE
+  )
+  
+  a <- list(
+    showticklabels = FALSE,
+    autotick = FALSE,
+    showgrid = FALSE,
+    zeroline = FALSE)
+   
+  
+  base_chart <- layout(
+    base_plot,
+    font = list(
+      color = '#fff'),
+    shapes = list(
+      list(
+        type = 'path',
+        path = paste('M 0.475 0.5 L', as.character(0.15 * cos(rad) + 0.5), as.character(0.3 * sin(rad) + 0.5), 'L 0.525 0.5 Z'),
+        xref = 'paper',
+        yref = 'paper',
+        fillcolor = 'yellow'
+      )
+    ),
+    xaxis = a,
+    yaxis = a,
+    paper_bgcolor='transparent',
+    annotations = list(xref = 'paper', 
+                       yref = 'paper', 
+                       x = 0.5, 
+                       y = 0.4, 
+                       showarrow = F, 
+                       text = paste("The public attention for is", value)))
+}
+
 #generate_filtered_genre <- function() {
 #  result <- game_datas_all %>% select(id, name, first_release_date, genres) %>% 
 #    filter(substr(first_release_date, 1, 4) == input$year_selection)
@@ -186,83 +254,27 @@ shinyServer(function(input, output) {
                 size = 20,
                 choices = game$name)
   })
+  output$select_measure <- renderUI({
+    game <- game_datas_all
+    game <- arrange(game, -popularity)
+    selectInput("Measurement",
+                label = "Measurement",
+                selectize = FALSE,
+                size = 1,
+                choices = c("Public Attention", "Ratings", "Time to beat"))
+  })
   output$gauge_plot <- renderPlotly({ 
-    max <- max(game_datas_all$popularity)
-    game <- filter(game_datas_all, name == input$Games[1])
-    pop <- game$popularity
-    section <- max / 5
-    rad <- (1 - (pop / max)) * pi
-    
-    m <- list(
-      l = 50,
-      r = 50,
-      b = 100,
-      t = 100,
-      pad = 4
-    )
-    
-    base_plot <- plot_ly(
-      type = "pie",
-      values = c(40, 10, 10, 10, 10, 10, 10),
-      labels = c(" ", "0", as.character(section), as.character(section * 2), as.character(section * 3), as.character(section * 4), as.character(section * 5)),
-      rotation = 108,
-      direction = "clockwise",
-      hole = 0.6,
-      textinfo = "label",
-      textposition = "outside",
-      hoverinfo = "none",
-      domain = list(x = c(0, 1), y = c(0, 1)),
-      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)','rgb(255, 255, 255)')),
-      showlegend = FALSE,
-      width = 1000, 
-      height = 500
-    )
-    
-    base_plot <- add_trace(
-      base_plot,
-      type = "pie",
-      values = c(50, 10, 10, 10, 10, 10),
-      labels = c(" ", "Dead", "Fading", "Alive", "Hot", "Red Hot!"),
-      rotation = 90,
-      direction = "clockwise",
-      hole = 0.5,
-      textinfo = "label",
-      textposition = "inside",
-      hoverinfo = "name",
-      domain = list(x = c(0, 1), y = c(0, 1)),
-      marker = list(colors = c('rgb(255, 255, 255)', 'rgb(232,226,202)', 'rgb(244,220,66)', 'rgb(244,166,66)', 'rgb(244,100,66)', 'rgb(244,66,66)')),
-      showlegend= FALSE
-    )
-    
-    a <- list(
-      showticklabels = FALSE,
-      autotick = FALSE,
-      showgrid = FALSE,
-      zeroline = FALSE)
-    
-    b <- list(
-      xref = 'paper',
-      yref = 'paper',
-      x = 0.5,
-      y = 0.4,
-      showarrow = F,
-      text = pop)
-    
-    base_chart <- layout(
-      base_plot,
-      shapes = list(
-        list(
-          type = 'path',
-          path = paste('M 0.5 0.5 L', as.character(0.15 * cos(rad) + 0.5), as.character(0.3 * sin(rad) + 0.5), 'L 0.5 0.5 Z'),
-          xref = 'paper',
-          yref = 'paper',
-          fillcolor = 'rgba(44, 160, 101, 0.5)'
-        )
-      ),
-      xaxis = a,
-      yaxis = a,
-      annotations = b
-    ) 
+    game <- arrange(filter(game_datas_all, name == input$Games[1]), -popularity)[1,]
+    name <- game$name
+    measure <- input$Measurement[1]
+    if(measure == "Public Attention") {
+      value <- game$popularity
+      max <- max(game_datas_all$popularity)
+    } else if (measure == "Ratings") {
+      value <- game$total_rating
+      max <- max(game_datas_all$total_rating)
+    }
+    generate_gauge_chart(value, max)
   })
 
   output$select_year <- renderUI({
@@ -280,7 +292,7 @@ shinyServer(function(input, output) {
     return(checkboxGroupInput("genre_types", "Game Type(s)", choices=joined_dataframe$name, selected=joined_dataframe$name))
   })
   
-output$genre_pie_chart <- renderPlotly({
+  output$genre_pie_chart <- renderPlotly({
     year_data <- game_datas_all %>% select(id, name, first_release_date, genres) %>% 
       filter(substr(first_release_date, 1, 4) == input$year_selection)
     genres_vector <- unlist(year_data$genres)
