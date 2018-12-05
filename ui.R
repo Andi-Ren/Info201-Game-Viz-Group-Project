@@ -37,7 +37,7 @@ shinyUI(tagList(
           uiOutput("filter_genre")
         ),
         mainPanel(
-            h1("Information Obtained from the Pie Chart"),
+            h3("Information Obtained from the Pie Chart"),
             br(),
             textOutput("least_genre"),
             br(),
