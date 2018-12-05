@@ -317,7 +317,7 @@ shinyServer(function(input, output, session) {
 
   output$search_game <- renderUI({
     selectizeInput(
-      "search", "0. Select Game",
+      "search", "Select Game",
       choices = game_datas_all$name
     )
   })
