@@ -10,13 +10,11 @@
 library(shiny)
 library(dplyr)
 library(plotly)
-library(ggplot2)
 generate_unique_release_year <- function() {
   filtered_data <- game_datas_all %>% select(id, name, first_release_date, genres) 
   unique_year <- substr(filtered_data$first_release_date, 1, 4)
   unique_year <- unique(unique_year)
   unique_year <- unique_year[!is.na(unique_year)]
-  unique_year <- sort(unique_year, decreasing = TRUE)
 }
 
 generate_genre_occurrence <- function(genre_id) {
@@ -25,10 +23,8 @@ generate_genre_occurrence <- function(genre_id) {
 
 generate_pie_chart <- function(genre_name, genre_id, year) {
     result <- plot_ly(labels = genre_name, values = genre_id, 
-                      #textposition = 'inside',
-                      textinfo = 'label+percent',
-                      width = 950, 
-                      height = 600
+                      textposition = 'inside',
+                      textinfo = 'percent'
                     ) %>%
     add_pie(hole = 0.6) %>%
     layout(title = paste("Genre distribution of video games in the year of", year),  
@@ -40,14 +36,14 @@ generate_pie_chart <- function(genre_name, genre_id, year) {
            yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
 }
 
-generate_gauge_chart <- function(value, max, name, tabs, Measure) {
+generate_gauge_chart <- function(value, max) {
   section <- max / 5
   rad <- (1 - (value / max)) * pi
   
   base_plot <- plot_ly(
     type = "pie",
     values = c(40, 10, 10, 10, 10, 10, 10),
-    labels = c(" ", "0", as.character(section), as.character(round(section * 2)), as.character(round(section * 3)), as.character(round(section * 4)), as.character(round(section * 5))),
+    labels = c(" ", "0", as.character(section), as.character(section * 2), as.character(section * 3), as.character(section * 4), as.character(section * 5)),
     rotation = 108,
     direction = "clockwise",
     hole = 0.6,
@@ -65,7 +61,7 @@ generate_gauge_chart <- function(value, max, name, tabs, Measure) {
     base_plot,
     type = "pie",
     values = c(50, 10, 10, 10, 10, 10),
-    labels = tabs,
+    labels = c(" ", "Dead", "Fading", "Alive", "Hot", "Red Hot!"),
     rotation = 90,
     direction = "clockwise",
     hole = 0.5,
@@ -105,8 +101,13 @@ generate_gauge_chart <- function(value, max, name, tabs, Measure) {
                        x = 0.5, 
                        y = 0.4, 
                        showarrow = F, 
-                       text = paste("The", Measure, "for", name, "is", value)))
+                       text = paste("The public attention for is", value)))
 }
+
+#generate_filtered_genre <- function() {
+#  result <- game_datas_all %>% select(id, name, first_release_date, genres) %>% 
+#    filter(substr(first_release_date, 1, 4) == input$year_selection)
+#}
 
 load("data/5000games.Rda")
 load("data/companylist.Rdat")
@@ -122,7 +123,7 @@ game_datas <- game_datas_all %>% select(id, name, collection,
 collection_datas <- collection_datas %>% arrange(name)
 
 # Define server logic required to draw a histogram
-shinyServer(function(input, output, session) {
+shinyServer(function(input, output) {
   reactive_data <- reactive({
     game_data <- game_datas_all
     if (!is.null(input$franchise) & !is.null(input$genre) & !is.null(input$theme)) {
@@ -142,33 +143,6 @@ shinyServer(function(input, output, session) {
         game_data <- game_data %>% filter(id %in% gamelist_genre)
       }
     }
-    game_data
-  })
-  
-  output$select_genre <- renderUI({
-    selectInput("genre",
-                label = "Genre",
-                choices = c("Select all" = "All", genre_datas$name),
-                selected = "All"
-                )
-  })
-  
-  output$select_theme <- renderUI({
-    selectInput("theme",
-                label = "Theme",
-                choices = c("Select all" = "All", theme_datas$name),
-                selected = "All"
-                )
-  })
-  
-  output$select_franchise <- renderUI({
-    selectInput("franchise",
-                label = "Franchise",
-                choices = c("Select all" = "All", collection_datas$name),
-                selectize = FALSE,
-                size = 20,
-                selected = "All"
-                )
     start_year <- as.Date(paste0(input$year[1], "-01-01"))
     end_year <- as.Date(paste0(input$year[2], "-12-31"))
     game_data <- game_data %>%
@@ -200,7 +174,6 @@ shinyServer(function(input, output, session) {
                   )
     output
   })
-  
   output$select_year_wayne <- renderUI({
     sliderInput("year",
                 label = "Year",
@@ -208,10 +181,8 @@ shinyServer(function(input, output, session) {
                 max = 2018,
                 value = c(1971, 2018))
   })
-  
   output$base_game <- renderUI({
     checkboxInput("base", label = "Base games only", value = FALSE)
-    
   })
   output$lineplot <- renderPlotly({
     game_data <- reactive_data()
@@ -289,7 +260,7 @@ shinyServer(function(input, output, session) {
                 label = "Measurement",
                 selectize = FALSE,
                 size = 1,
-                choices = c("Public Attention", "Overall Ratings"))
+                choices = c("Public Attention", "Ratings", "Time to beat"))
   })
   output$gauge_plot <- renderPlotly({ 
     game <- arrange(filter(game_datas_all, name == input$Games[1]), -popularity)[1,]
@@ -298,18 +269,11 @@ shinyServer(function(input, output, session) {
     if(measure == "Public Attention") {
       value <- game$popularity
       max <- max(game_datas_all$popularity)
-      tabs <- c(' ', 1 ,2 ,3 ,4 ,5)
     } else if (measure == "Ratings") {
       value <- game$total_rating
       max <- max(game_datas_all$total_rating)
-      tabs <- c(' ', 2, 3, 4, 5, 6)
-    } else if (measure == "Player Ratings") {
-      value <- game$total_rating
-      max <- max(game_datas_all$total_rating)
-      tabs <- c(' ', 2, 3, 4, 5, 6)
     }
-    generate_gauge_chart(value, max, name, tabs, measure)
-    #generate_gauge_chart(value2, max2)
+    generate_gauge_chart(value, max)
   })
 
   output$select_year <- renderUI({
@@ -324,55 +288,16 @@ shinyServer(function(input, output, session) {
     unique_genre_dataframe <- data.frame(id, stringsAsFactors = FALSE)
     small_genre_data <- select(genre_datas, id, name)
     joined_dataframe <- inner_join(small_genre_data, unique_genre_dataframe, by="id")
-    return(checkboxGroupInput("genre_types", "Game Type(s)", 
-                              choices=joined_dataframe$name, selected=joined_dataframe$name))
+    return(checkboxGroupInput("genre_types", "Game Type(s)", choices=joined_dataframe$name, selected=joined_dataframe$name))
   })
   
-  observe({
-    # Run whenever reset button is pressed
-  x <- input$reset
-  if(is.null(x))
-    x <- character(0)
-    
-     #Send an update to my_url, resetting its value
-    updateCheckboxGroupInput(session, "genre_types", selected = x)
-  })
-  
-output$genre_pie_chart <- renderPlotly({
-    if (!is.null(input$genre_types)) {
+  output$genre_pie_chart <- renderPlotly({
     year_data <- game_datas_all %>% select(id, name, first_release_date, genres) %>% 
       filter(substr(first_release_date, 1, 4) == input$year_selection)
     genres_vector <- unlist(year_data$genres)
-    filtered_genres <- genre_datas %>% filter(name %in% input$genre_types) 
+    filtered_genres <- genre_datas %>% filter(name %in% input$genre_types) #might show problem
     genre_vector <- filtered_genres$id
     genre_occurrences <- sapply(genre_vector, generate_genre_occurrence)
-    total_count <- sum(genre_occurrences)
-    output$most_genre <- renderText({
-      most_popular_number <- max(genre_occurrences)
-      most_popular_index <- which(genre_occurrences == most_popular_number)
-      most_popular_name <- input$genre_types
-      most_popular_name <- most_popular_name[most_popular_index]
-      most_popular_percent <- round(most_popular_number / total_count * 100, digits = 3)
-      #most_popular_row <- filter(genre_datas, name == most_popular_name)
-      
-      paste("The game type of", most_popular_name, 
-            "is the most popular, with a proportion of", most_popular_percent, 
-            "% in the selected game types.")
-    })
-    output$least_genre <- renderText({
-      least_popular_number <- min(genre_occurrences)
-      least_popular_index <- which(genre_occurrences == least_popular_number)
-      least_popular_name <- input$genre_types
-      least_popular_name <- least_popular_name[least_popular_index]
-      least_popular_percent <- round(least_popular_number / total_count * 100, digits = 3)
-      #most_popular_row <- filter(genre_datas, name == most_popular_name)
-      
-      paste("The game type of", least_popular_name, 
-            "is the least popular, with a proportion of", least_popular_percent, 
-            "% in the selected game types.")
-    })
     generate_pie_chart(input$genre_types, genre_occurrences, input$year_selection)
-    }
   })
-
 })
