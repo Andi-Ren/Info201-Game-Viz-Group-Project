@@ -59,8 +59,7 @@ generate_pie_chart <- function(genre_name, genre_id, year) {
                         showticklabels = FALSE))
 }
 
-generate_gauge_chart <- function(value, max, name, measure, tabs) {
-  section <- round(max / 5)
+generate_gauge_chart <- function(value, max, name, measure, tabs, colors) {
   rad <- (1 - (value / max)) * pi
   if (is.na(value)) {
     value <- "Non exisitent"
@@ -68,9 +67,8 @@ generate_gauge_chart <- function(value, max, name, measure, tabs) {
   base_plot <- plot_ly(
     type = "pie",
     values = c(40, 10, 10, 10, 10, 10, 10),
-    labels = c(" ", "0", as.character(section), as.character(section * 2),
-               as.character(section * 3), as.character(section * 4),
-               as.character(section * 5)),
+    labels = c(" ", " ", " ", " ", " ", " ",
+               round(max)),
     rotation = 108,
     direction = "clockwise",
     hole = 0.6,
@@ -82,8 +80,8 @@ generate_gauge_chart <- function(value, max, name, measure, tabs) {
                              "transparent", "transparent", "transparent",
                              "transparent")),
     showlegend = FALSE,
-    width = 1400,
-    height = 700
+    width = 1200,
+    height = 600
   )
   
   base_plot <- add_trace(
@@ -132,7 +130,7 @@ generate_gauge_chart <- function(value, max, name, measure, tabs) {
                        x = 0.5, 
                        y = 0.4, 
                        showarrow = F, 
-                       text = paste("The", measure, "for", name, "is", value)))
+                       text = paste("The", measure, "for", name, "is", round(value))))
 
 }
 
@@ -276,21 +274,19 @@ shinyServer(function(input, output, session) {
     sum_text
   })
   output$recommandation <- renderText({
-    highest_rating <- game_datas_all %>% filter(total_rating >= 90)
-    row_num <- sample(1:nrow(highest_rating), 1)
-    game_html <- paste0("<h4 align = center>", highest_rating[row_num, ]$name,
+    game <- arrange(filter(game_datas_all, name == input$search[1]), -popularity)[1,]
+    game_html <- paste0("<h4 align = center>", game$name,
                         "</h4><p align = center><img src=",
-                        highest_rating[row_num, ]$cover.url,
+                        game$cover.url,
                         "></p><p align = center>Rating: ",
-                        round(highest_rating[row_num, ]$total_rating, 2),
+                        round(game$total_rating, 2),
                         "</p><p>Summary: ",
-                        highest_rating[row_num, ]$summary, "</p>")
+                        game$summary, "</p>")
   })
   
   output$search_game <- renderUI({
     selectizeInput(
       'search', '0. Select Game', choices = game_datas_all$name
-      #selectize = FALSE
     )
   })
   
@@ -304,10 +300,9 @@ shinyServer(function(input, output, session) {
   })
   output$gauge_plot <- renderPlotly({ 
     game <- arrange(filter(game_datas_all, name == input$search[1]), -popularity)[1,]
-
     name <- game$name
     measure <- input$Measurement[1]
-    tabs <- c(" ", "Negative", "Mostly Negagtive", "Mixed", "Positive", "Best Game Ever!")
+    tabs <- c(" ", "Mixed", "Mostly Negagtive", "Negative", "Positive", "Best Game Ever!")
     if(measure == "Public Attention") {
       value <- game$popularity
       max <- max(game_datas_all$popularity)
