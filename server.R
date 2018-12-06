@@ -9,11 +9,14 @@ load("data/companylist.Rdat")
 load("data/genrelist.Rdat")
 load("data/themedata.Rdat")
 load("data/collectiondata.Rdat")
+
 game_datas_all <- game_datas_all %>%
   mutate(first_release_date = as.Date(game_datas_all$first_release_date)) %>%
+  # Fixes some API encoding issue.
   mutate(summary = mgsub(game_datas_all$summary,
-                         c("â€™", "Â®", "Î»", "Â²", "â€“"),
-                         c("'", "®", "λ", "²", "'")))
+                         c("â€™", "Â®", "Î»", "Â²", "â€“", "â€¦", "â„¢", "â€”", "Ã©"),
+                         c("'", "®", "λ", "²", "", "", "", " ", "é"))) %>%
+  mutate(name = gsub("Ã©", "é", game_datas_all$name))
 game_datas <- game_datas_all %>% select(
   id, name, collection,
   total_rating, game,
