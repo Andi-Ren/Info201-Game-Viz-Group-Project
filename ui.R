@@ -2,7 +2,7 @@ library(shiny)
 library(shinythemes)
 library(shinyWidgets)
 library(plotly)
-# Define UI for application that draws a histogram
+
 shinyUI(tagList(
   # shinythemes::themeSelector(),
   navbarPage(
