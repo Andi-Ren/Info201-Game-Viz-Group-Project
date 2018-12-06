@@ -2,6 +2,7 @@ library(shiny)
 library(dplyr)
 library(plotly)
 library(shinyWidgets)
+library(textclean)
 
 load("data/5000games.Rda")
 load("data/companylist.Rdat")
@@ -10,7 +11,9 @@ load("data/themedata.Rdat")
 load("data/collectiondata.Rdat")
 game_datas_all <- game_datas_all %>%
   mutate(first_release_date = as.Date(game_datas_all$first_release_date)) %>%
-  mutate(summary = gsub("â€™", "'", game_datas_all$summary))
+  mutate(summary = mgsub(game_datas_all$summary,
+                         c("â€™", "Â®", "Î»", "Â²", "â€“"),
+                         c("'", "®", "λ", "²", "'")))
 game_datas <- game_datas_all %>% select(
   id, name, collection,
   total_rating, game,
