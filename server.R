@@ -9,7 +9,8 @@ load("data/genrelist.Rdat")
 load("data/themedata.Rdat")
 load("data/collectiondata.Rdat")
 game_datas_all <- game_datas_all %>%
-  mutate(first_release_date = as.Date(game_datas_all$first_release_date))
+  mutate(first_release_date = as.Date(game_datas_all$first_release_date)) %>% 
+  mutate(summary, gsub("â€™", "'", game_datas_all$summary))
 game_datas <- game_datas_all %>% select(
   id, name, collection,
   total_rating, game,
