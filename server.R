@@ -18,6 +18,7 @@ game_datas <- game_datas_all %>% select(
 )
 collection_datas <- collection_datas %>% arrange(name)
 
+# Generate a vector of unique release year 
 generate_unique_release_year <- function() {
   filtered_data <- game_datas_all %>%
     select(id, name, first_release_date, genres)
@@ -27,10 +28,13 @@ generate_unique_release_year <- function() {
   unique_year <- sort(unique_year, decreasing = TRUE)
 }
 
+# Given a genre's id as paramter, generates its total occurrences. 
 generate_genre_occurrence <- function(genre_id) {
   length(which(grepl(genre_id, game_datas_all$genres)))
 }
 
+# Given a genre name, a genre id, and a selected year as parameters, generates 
+# a pie chart of genre distribution in the given year
 generate_pie_chart <- function(genre_name, genre_id, year) {
   result <- plot_ly(
     labels = genre_name, values = genre_id,
@@ -307,6 +311,7 @@ shinyServer(function(input, output, session) {
     }
     sum_text
   })
+  # displays the information based on the selected game and measurement. 
   output$recommandation <- renderText({
     game <- arrange(filter(game_datas_all, name == input$search[1]), -popularity)[1, ]
     game_html <- paste0(
@@ -361,10 +366,13 @@ shinyServer(function(input, output, session) {
     generate_gauge_chart(value, max, name, measure, tabs)
   })
   
+  # Displays a dropdown selection menu with different release year for users to select from. 
   output$select_year <- renderUI({
     return(selectInput("year_selection", "Select Release Year", choices = generate_unique_release_year(), selected = 2018))
   })
-
+  
+  # Displays multiple checkboxes of different game types for users to choose. The values of the 
+  # checkboxes are based on the selected year. 
   output$filter_genre <- renderUI({
     selected_year_data <- game_datas_all %>%
       select(id, name, first_release_date, genres) %>%
@@ -383,17 +391,19 @@ shinyServer(function(input, output, session) {
     ))
   })
 
+  # Observes whether the button of reset is clicked. Once the button is clicked, 
+  # all the checkboxes will become unchecked.
   observe({
-    # Run whenever reset button is pressed
     x <- input$reset
     if (is.null(x)) {
       x <- character(0)
     }
-
-    # Send an update to my_url, resetting its value
     updateCheckboxGroupInput(session, "genre_types", selected = x)
   })
 
+  # Displays the pie chart in the main panel based on the input of year and chosen game types.
+  # Information about the total number of different game types in the selected year, 
+  # the least developed game type and the most developed game type will also be displayed. 
   output$genre_pie_chart <- renderPlotly({
     if (!is.null(input$genre_types)) {
       year_data <- game_datas_all %>%
