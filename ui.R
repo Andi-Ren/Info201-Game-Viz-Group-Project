@@ -2,7 +2,7 @@ library(shiny)
 library(shinythemes)
 library(shinyWidgets)
 library(plotly)
-
+# Defines the UI that creates an about page, and 3 different plots in each tab for Game-Viz app.
 shinyUI(tagList(
   # shinythemes::themeSelector(),
   navbarPage(

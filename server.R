@@ -9,14 +9,13 @@ load("data/genrelist.Rdat")
 load("data/themedata.Rdat")
 load("data/collectiondata.Rdat")
 game_datas_all <- game_datas_all %>%
-  mutate(first_release_date = as.Date(game_datas_all$first_release_date)) %>% 
-  mutate(summary, gsub("â€™", "'", game_datas_all$summary))
+  mutate(first_release_date = as.Date(game_datas_all$first_release_date)) %>%
+  mutate(summary = gsub("â€™", "'", game_datas_all$summary))
 game_datas <- game_datas_all %>% select(
   id, name, collection,
   total_rating, game,
   developers, themes,
-  genres, first_release_date
-)
+  genres, first_release_date)
 collection_datas <- collection_datas %>% arrange(name)
 
 # Generate a vector of unique release year 
@@ -43,7 +42,7 @@ generate_pie_chart <- function(genre_name, genre_id, year) {
     textinfo = "label+percent",
     width = 950,
     height = 600
-  ) %>%
+    ) %>%
     add_pie(hole = 0.6) %>%
     layout(
       title = paste(
@@ -73,7 +72,8 @@ generate_gauge_chart <- function(value, max, name, measure, tabs) {
     value <- "Non exisitent"
   }
   
-  #plot out the base donut chart in transparent color, serves as the base for the gauge.
+  # plots out the base donut chart in transparent color,
+  # serves as the base for the gauge.
   base_plot <- plot_ly(
     type = "pie",
     values = c(40, 10, 10, 10, 10, 10, 10),
@@ -163,6 +163,7 @@ shinyServer(function(input, output, session) {
   # This reactive function filters out a list of games needed for plotting.
   reactive_data <- reactive({
     game_data <- game_datas_all
+    # Filters out the desired genre, theme, and franchise
     if (!is.null(input$franchise) & !is.null(input$genre) & !is.null(input$theme)) {
       if (input$theme[1] != "all") {
         selected_theme <- theme_datas %>% filter(name == input$theme[1])
@@ -182,8 +183,10 @@ shinyServer(function(input, output, session) {
     }
     start_year <- as.Date(paste0(input$year[1], "-01-01"))
     end_year <- as.Date(paste0(input$year[2], "-12-31"))
+    # Filters out the desired games in a year range.
     game_data <- game_data %>%
       filter(start_year <= first_release_date & end_year >= first_release_date)
+    # Filters out base games.
     if (input$base[1]) {
       game_data <- game_data %>% filter(is.na(game))
     }
@@ -329,7 +332,7 @@ shinyServer(function(input, output, session) {
   #select or search a particular game to be used in the guage chart.
   output$search_game <- renderUI({
     selectizeInput(
-      'search', 'Select Game', choices = game_datas_all$name
+      "search", "Select Game", choices = game_datas_all$name
     )
   })
   
