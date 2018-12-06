@@ -19,6 +19,7 @@ game_datas <- game_datas_all %>% select(
 )
 collection_datas <- collection_datas %>% arrange(name)
 
+# Generate a vector of unique release year 
 generate_unique_release_year <- function() {
   filtered_data <- game_datas_all %>%
     select(id, name, first_release_date, genres)
@@ -28,10 +29,13 @@ generate_unique_release_year <- function() {
   unique_year <- sort(unique_year, decreasing = TRUE)
 }
 
+# Given a genre's id as paramter, generates its total occurrences. 
 generate_genre_occurrence <- function(genre_id) {
   length(which(grepl(genre_id, game_datas_all$genres)))
 }
 
+# Given a genre name, a genre id, and a selected year as parameters, generates 
+# a pie chart of genre distribution in the given year
 generate_pie_chart <- function(genre_name, genre_id, year) {
   result <- plot_ly(
     labels = genre_name, values = genre_id,
@@ -62,11 +66,14 @@ generate_pie_chart <- function(genre_name, genre_id, year) {
     )
 }
 
-generate_gauge_chart <- function(value, max, name, measure, tabs, colors) {
+#Plots out the gauge plot
+generate_gauge_chart <- function(value, max, name, measure, tabs) {
   rad <- (1 - (value / max)) * pi
   if (is.na(value)) {
     value <- "Non exisitent"
   }
+  
+  #plot out the base donut chart in transparent color, serves as the base for the gauge.
   base_plot <- plot_ly(
     type = "pie",
     values = c(40, 10, 10, 10, 10, 10, 10),
@@ -87,10 +94,10 @@ generate_gauge_chart <- function(value, max, name, measure, tabs, colors) {
       "transparent"
     )),
     showlegend = FALSE,
-    width = 1200,
-    height = 600
+    width = 950,
+    height = 475
   )
-
+  #plot out the colored donut chart to serve as the dashboard.
   base_plot <- add_trace(
     base_plot,
     type = "pie",
@@ -110,19 +117,21 @@ generate_gauge_chart <- function(value, max, name, measure, tabs, colors) {
     )),
     showlegend = FALSE
   )
-
+  
   a <- list(
     showticklabels = FALSE,
     autotick = FALSE,
     showgrid = FALSE,
     zeroline = FALSE
   )
-
+  
+  #defines font color and draws the hand of the gauge
   base_chart <- layout(
     base_plot,
     font = list(
       color = "#fff"
     ),
+    #draws the hand of the gauge as a vector shape
     shapes = list(
       list(
         type = "path",
@@ -303,6 +312,7 @@ shinyServer(function(input, output, session) {
     }
     sum_text
   })
+  # displays the information based on the selected game and measurement. 
   output$recommandation <- renderText({
     game <- arrange(filter(game_datas_all, name == input$search[1]), -popularity)[1, ]
     game_html <- paste0(
@@ -316,31 +326,34 @@ shinyServer(function(input, output, session) {
     )
   })
 
+  #select or search a particular game to be used in the guage chart.
   output$search_game <- renderUI({
     selectizeInput(
-      "search", "Select Game",
-      choices = game_datas_all$name
+      'search', 'Select Game', choices = game_datas_all$name
     )
   })
-
+  
+  #select or search a particular variable to measure in the guage chart.
   output$select_measure <- renderUI({
     game <- game_datas_all
     game <- arrange(game, -popularity)
     selectizeInput("Measurement",
       label = "Measurement",
       size = 1,
-      choices = c("Overall Rating", "User Rating", "Critic Rating", "Public Attention")
+      choices = c("Overall Rating", "User Rating", "Critic Rating", "Media Attention")
     )
   })
+  
+  #provides dropdown selection menu with type-in search function and initiates gauge chart plotting.
   output$gauge_plot <- renderPlotly({
     game <- arrange(filter(game_datas_all, name == input$search[1]), -popularity)[1, ]
     name <- game$name
     measure <- input$Measurement[1]
-    tabs <- c(" ", "Mixed", "Mostly Negagtive", "Negative", "Positive", "Best Game Ever!")
-    if (measure == "Public Attention") {
+    tabs <- c(" ", "Mixed", "Negagtive", "Mostly Negative", "Positive", "Best Game Ever!") 
+    if (measure == "Media Attention") {
       value <- game$popularity
       max <- max(game_datas_all$popularity)
-      tabs <- c(" ", "Quiet", "Fading-away", "Talk-about", "Under a spotlight", "Under a microscope")
+      tabs <- c(" ", "Talk-about", "Quiet", "Fading away", "Under a spotlight", "Under a microscope")
     } else if (measure == "Overall Rating") {
       value <- game$total_rating
       max <- max(game_datas_all$total_rating)
@@ -353,11 +366,14 @@ shinyServer(function(input, output, session) {
     }
     generate_gauge_chart(value, max, name, measure, tabs)
   })
-
+  
+  # Displays a dropdown selection menu with different release year for users to select from. 
   output$select_year <- renderUI({
     return(selectInput("year_selection", "Select Release Year", choices = generate_unique_release_year(), selected = 2018))
   })
-
+  
+  # Displays multiple checkboxes of different game types for users to choose. The values of the 
+  # checkboxes are based on the selected year. 
   output$filter_genre <- renderUI({
     selected_year_data <- game_datas_all %>%
       select(id, name, first_release_date, genres) %>%
@@ -376,17 +392,19 @@ shinyServer(function(input, output, session) {
     ))
   })
 
+  # Observes whether the button of reset is clicked. Once the button is clicked, 
+  # all the checkboxes will become unchecked.
   observe({
-    # Run whenever reset button is pressed
     x <- input$reset
     if (is.null(x)) {
       x <- character(0)
     }
-
-    # Send an update to my_url, resetting its value
     updateCheckboxGroupInput(session, "genre_types", selected = x)
   })
 
+  # Displays the pie chart in the main panel based on the input of year and chosen game types.
+  # Information about the total number of different game types in the selected year, 
+  # the least developed game type and the most developed game type will also be displayed. 
   output$genre_pie_chart <- renderPlotly({
     if (!is.null(input$genre_types)) {
       year_data <- game_datas_all %>%
@@ -410,7 +428,7 @@ shinyServer(function(input, output, session) {
           digits = 3
         )
         paste(
-          "Most popular:", most_popular_name,
+          "Most developed:", most_popular_name,
           ", with a proportion of", most_popular_percent,
           "% in the selected types."
         )
@@ -424,7 +442,7 @@ shinyServer(function(input, output, session) {
           digits = 3
         )
         paste(
-          "Least popular:", least_popular_name,
+          "Least developed:", least_popular_name,
           ", with a proportion of", least_popular_percent,
           "% in the selected types."
         )

@@ -2,7 +2,7 @@ library(shiny)
 library(shinythemes)
 library(shinyWidgets)
 library(plotly)
-# Define UI for application that draws a histogram
+
 shinyUI(tagList(
   # shinythemes::themeSelector(),
   navbarPage(
@@ -21,7 +21,7 @@ shinyUI(tagList(
             "</ul>"
           )
         }),
-        h3("What is this app and what is it for."),
+        h3("What is this app and what is it for?"),
         p("This Shiny web app helps the users to visualize video game related information."),
         h3("What is the dataset we are working with?"),
         p("We'll be working with the Internet Games Database(IGDB), a community-driven site 
@@ -30,7 +30,7 @@ shinyUI(tagList(
         h3("Who is the target audience?"),
         p("Our target audience is video game players who likes to analyze and critique"),
         h3("How do users interact with the app and what visualizations will be shown?"),
-        p("The user can visualize the information about video game by manipulating interacting 
+        p("The user can visualize the information about video game by interacting 
          with the widgets in the side panel."),
         p("In the tab of 'Genre Distribution', the user can enter a particular release year 
         and check different genre types to compare the proportions shown in the pie graph. 
@@ -46,7 +46,7 @@ shinyUI(tagList(
         p("In the tab of 'Game Hotness Gauge', the users can select one measurement of a particular 
         game that they are interested in, and the gauge chart will show the value of the selected 
         game in the selected measurement. A picture and an overview of the selected game are shown 
-        below the gauge chart")
+        below the gauge chart.")
       )
     ),
     tabPanel(
