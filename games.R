@@ -10,7 +10,7 @@ if (Sys.info()["user"] == "Denouement") {
 
 # order by total ratings count in descending order
 game_url <- paste0("https://api-endpoint.igdb.com",
-                          "/games/?order=total_rating_count:desc&fields=*&limit=50&scroll=1")
+                   "/games/?order=total_rating_count:desc&fields=*&limit=50&scroll=1")
 game_res <- GET(game_url, add_headers("user-key" = game_key, "Accept" = "application/json"))
 game_datas_all <- flatten(fromJSON(rawToChar(content(game_res, "raw"))))
 
@@ -49,13 +49,13 @@ company_datas <- flatten(fromJSON(rawToChar(content(company_res, "raw"))))
 
 # This code chunk tests the endpoint of game genres
 genre_url <- paste0("https://api-endpoint.igdb.com",
-                      "/genres/?fields=*&limit=50&scroll=1")
+                    "/genres/?fields=*&limit=50&scroll=1")
 genre_res <- GET(genre_url, add_headers("user-key" = game_key, "Accept" = "application/json"))
 genre_datas <- flatten(fromJSON(rawToChar(content(genre_res, "raw"))))
 
 # This code chunk tests the endpoint of game franchises
 franchises_url <- paste0("https://api-endpoint.igdb.com",
-                    "/franchises/?fields=*&limit=50&scroll=1")
+                         "/franchises/?fields=*&limit=50&scroll=1")
 franchises_res <- GET(franchises_url, add_headers("user-key" = game_key, "Accept" = "application/json"))
 franchises_datas <- flatten(fromJSON(rawToChar(content(franchises_res, "raw"))))
 
@@ -132,8 +132,8 @@ unique_theme <- unlist(game_datas_all$themes)
 unique_theme <- unique(unique_theme)
 unique_theme_string <- paste0(as.character(unique_theme[1:21]), collapse=",")
 theme_url <- paste0("https://api-endpoint.igdb.com",
-                  "/themes/", unique_theme_string,
-                  "?fields=*")
+                    "/themes/", unique_theme_string,
+                    "?fields=*")
 theme_res <- GET(theme_url, add_headers("user-key" = game_key, "Accept" = "application/json"))
 theme_datas <- flatten(fromJSON(rawToChar(content(theme_res, "raw"))))
 
